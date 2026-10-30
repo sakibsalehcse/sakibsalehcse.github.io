@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ঢালাই হিসাব ক্যালকুলেটর</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mu:#6b6a64;--bd:#e0ded6;--ac:#c2410c;--hl:#fff3e8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171716;--card:#222220;--tx:#f0efe9;--mu:#a09f97;--bd:#3a3935;--ac:#fb923c;--hl:#33261a}}
+:root[data-theme="light"]{--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mu:#6b6a64;--bd:#e0ded6;--ac:#c2410c;--hl:#fff3e8;color-scheme:light}
+:root[data-theme="dark"]{--bg:#171716;--card:#222220;--tx:#f0efe9;--mu:#a09f97;--bd:#3a3935;--ac:#fb923c;--hl:#33261a;color-scheme:dark}
+:root[data-theme="neon"]{--bg:#07071a;--card:#101030;--tx:#e8fffb;--mu:#8fb3d9;--bd:#00e5ff;--ac:#00ffd5;--hl:#2a0a40;color-scheme:dark}
+[data-theme="neon"] .card{box-shadow:0 0 14px #00e5ff55,inset 0 0 10px #ff00ff22}
+[data-theme="neon"] h1,[data-theme="neon"] h2{text-shadow:0 0 10px currentColor}
+[data-theme="neon"] button{box-shadow:0 0 8px var(--ac);text-shadow:0 0 6px var(--ac)}
+[data-theme="neon"] tfoot td{color:#ff4df0;text-shadow:0 0 8px #ff4df0}
+[data-theme="neon"] .step{border-left-color:#ff4df0;box-shadow:-4px 0 10px -6px #ff4df0}
+.top{flex-wrap:wrap}.btns{display:flex;gap:6px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Bengali","Kalpurush",sans-serif;line-height:1.6}
+main{max-width:760px;margin:0 auto;padding:16px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+h1{font-size:1.35rem;margin:8px 0 2px}
+button{border:1px solid var(--ac);background:none;color:var(--ac);border-radius:8px;padding:6px 12px;font-size:.9rem;cursor:pointer}
+.hint{display:block;margin-top:4px;font-size:.76rem;line-height:1.45;color:var(--mu)}
+p.sub{color:var(--mu);margin:0 0 16px;font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px}
+h2{font-size:1.05rem;margin:0 0 12px;color:var(--ac)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+label{display:block;font-size:.8rem;color:var(--mu);margin-bottom:3px}
+input{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font-size:1rem}
+.step{border-left:3px solid var(--ac);padding:6px 0 6px 12px;margin-bottom:12px}
+.step b{display:block;font-size:.95rem}
+.eq{font-size:.88rem;color:var(--mu);overflow-x:auto;white-space:nowrap}
+.res{font-weight:700}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{padding:8px 6px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mu);font-weight:600;font-size:.8rem}
+tfoot td{font-weight:700;font-size:1.05rem;background:var(--hl);border:0}
+td input{width:90px;padding:5px;text-align:right}
+</style>
+<link rel="stylesheet" href="tools.css">
+<script>(function(){try{var v=localStorage.getItem("sakib-theme");if(v==="graphite"||v==="neon"||v==="mono")document.documentElement.dataset.pf=v}catch(e){}})()</script>
+</head>
+<body><nav class="pf-bar" aria-label="Portfolio"><a class="pf-home" href="../index.html">&lt;/&gt; Sakib<span>.Saleh</span></a><div class="pf-links"><a href="../pages/tools.html">All tools</a><a href="mikrotik-setup-studio.html">Setup Studio</a><a href="mikrotik-config-generator.html">Config Generator</a><a href="mikrotik-troubleshooting-desk.html">Troubleshooting Desk</a><a href="subnet-calculator.html">Subnet Calculator</a><a href="slab-calculator.html" aria-current="page">Slab Calculator</a><a href="fiber-fix.html">Fiber Fix</a></div></nav>
+<main>
+<div class="top"><h1 data-k="title"></h1><div class="btns"><button id="lg"></button><button id="th"></button></div></div>
+<p class="sub" data-k="sub"></p>
+
+<div class="card">
+<h2 data-k="h1"></h2>
+<div class="grid" id="inp"></div>
+</div>
+
+<div class="card">
+<h2 data-k="h2"></h2>
+<div id="steps"></div>
+</div>
+
+<div class="card">
+<h2 data-k="h3"></h2>
+<div class="tw">
+<table>
+<thead><tr><th data-k="c_item"></th><th data-k="c_qty"></th><th data-k="c_unit"></th><th data-k="c_rate"></th><th data-k="c_cost"></th></tr></thead>
+<tbody id="rows"></tbody>
+<tfoot><tr><td colspan="4" data-k="total"></td><td id="total">0</td></tr></tfoot>
+</table>
+</div>
+<p class="sub" style="margin-top:10px" data-k="note"></p>
+<button id="rq"></button>
+</div>
+</main>
+
+<script>
+const D={
+bn:{title:'ঢালাই হিসাব ক্যালকুলেটর',sub:'কংক্রিট ১:২:৪ (সিমেন্ট : বালি : খোয়া) + রড। যেকোনো মান বদলালে হিসাব ও খরচ নিজে নিজে বদলে যাবে, প্রতিটি ধাপসহ।',
+h1:'১. ইনপুট ডাটা',h2:'২. ধাপে ধাপে হিসাব',h3:'৩. খরচ (দাম নিজে বসান)',
+c_item:'মালামাল',c_qty:'পরিমাণ',c_unit:'একক',c_rate:'দর (৳)',c_cost:'খরচ (৳)',total:'মোট আনুমানিক খরচ',
+note:'দরগুলো শুধু নমুনা। আপনার এলাকার বাজারদর বসান।',
+L:'দৈর্ঘ্য (ফুট)',W:'প্রস্থ (ফুট)',T:'পুরুত্ব (ইঞ্চি)',rc:'সিমেন্ট অনুপাত',rs:'বালি অনুপাত',rk:'খোয়া অনুপাত',df:'শুষ্ক আয়তন গুণক',rp:'রড (আয়তনের %)',bg:'সিমেন্ট ব্যাগ (ঘনফুট)',bk:'১ ঘনফুট খোয়া = কত ইট',
+hL:'ঢালাইয়ের লম্বা দিকের মাপ। আপনার খাতায় ৩২ ফুট।',hW:'ঢালাইয়ের চওড়া দিকের মাপ। আপনার খাতায় ২৫ ফুট।',hT:'ঢালাইয়ের মোটা বা পুরু। আপনার খাতায় ৫ ইঞ্চি।',hrc:'১ ভাগ সিমেন্ট। অনুপাত ১ : ২ : ৪ = মোট ৭ ভাগ।',hrs:'২ ভাগ বালি (১ : ২ : ৪ এর মাঝের সংখ্যা)।',hrk:'৪ ভাগ খোয়া (১ : ২ : ৪ এর শেষ সংখ্যা)।',hdf:'ঢালাই জমাট হলে আয়তন কমে যায়, তাই শুকনো মাল ১.৫ গুণ লাগে। ৩৩৪ × ১.৫ = ৫০১ ঘনফুট।',hrp:'ঢালাইয়ের আয়তনের কত % জায়গায় রড থাকবে। ১% মানে ৩৩৪ × ১/১০০ = ৩.৩৪ ঘনফুট। এটা মোটামুটি ধারণা, আসল রড ইঞ্জিনিয়ারের ডিজাইন অনুযায়ী হবে।',hbg:'১ ব্যাগ সিমেন্ট ≈ ১.২৫ ঘনফুট। ব্যাগ = সিমেন্ট (ঘনফুট) ÷ ১.২৫।',hbk:'১ ঘনফুট ইটের খোয়া = ৫টি ইট। ২৮৭ × ৫ = ১,৪৩৫টি ইট।',
+cement:'সিমেন্ট',sand:'বালি',chips:'ইটের খোয়া',rod:'রড',
+u_bag:'ব্যাগ',u_cft:'ঘনফুট',u_brick:'ইট',u_kg:'কেজি',sft:'বর্গফুট',cft:'ঘনফুট',m3:'ঘনমিটার',kg:'কেজি',ton:'টন',bags:'ব্যাগ',bricks:'টি ইট',
+s1:'ধাপ ১: ক্ষেত্রফল',s2:'ধাপ ২: ঢালাইয়ের আয়তন',s3:'ধাপ ৩: শুষ্ক আয়তন',s4:'ধাপ ৪: অনুপাতের যোগফল',s5:'ধাপ ৫: সিমেন্ট',s6:'ধাপ ৬: বালি',s7:'ধাপ ৭: ইটের খোয়া',s8:'ধাপ ৮: রডের আয়তন',s9:'ধাপ ৯: ঘনফুট → ঘনমিটার',s10:'ধাপ ১০: ঘনমিটার → কেজি → টন',
+Ar:'ক্ষেত্রফল = দৈর্ঘ্য × প্রস্থ',Vo:'আয়তন = ক্ষেত্রফল × পুরুত্ব ÷ ১২',up:'(উপরের দিকে পূর্ণসংখ্যা)',Dr:'শুষ্ক আয়তন = আয়তন ×',Ra:'সিমেন্ট + বালি + খোয়া',one:'এক ভাগ',per:'ঘনফুট প্রতি ভাগ',Bg:'ব্যাগ = ',Ch:'ইট = ',Rd:'রড = আয়তন × ',Cv:'১ ঘনফুট = ০.০২৮৩১৬ ঘনমিটার',De:'স্টিলের ঘনত্ব = ৭৮৫০ কেজি/ঘনমিটার'},
+en:{title:'Slab Material & Cost Calculator',sub:'Concrete 1:2:4 (cement : sand : brick chips) + steel rod. Change any value and everything recalculates, with each step shown.',
+h1:'1. Input data',h2:'2. Step-by-step equations',h3:'3. Cost (edit unit prices)',
+c_item:'Item',c_qty:'Qty',c_unit:'Unit',c_rate:'Rate (৳)',c_cost:'Cost (৳)',total:'Total estimated cost',
+note:'Default rates are only placeholders. Enter your local market prices.',
+L:'Length (ft)',W:'Width (ft)',T:'Thickness (inch)',rc:'Cement part',rs:'Sand part',rk:'Chips part',df:'Dry volume factor',rp:'Rod (% of volume)',bg:'Cement bag (cft)',bk:'Bricks per 1 cft chips',
+hL:'Long side of the slab. Your sheet: 32 ft.',hW:'Short side of the slab. Your sheet: 25 ft.',hT:'Thickness of the slab. Your sheet: 5 inch.',hrc:'1 part cement. Ratio 1 : 2 : 4 = 7 parts total.',hrs:'2 parts sand (middle number of 1 : 2 : 4).',hrk:'4 parts brick chips (last number of 1 : 2 : 4).',hdf:'Concrete shrinks when it sets, so dry material needed is 1.5 times the volume. 334 × 1.5 = 501 cft.',hrp:'Share of the slab volume taken by rod. 1% means 334 × 1/100 = 3.34 cft. This is only a rough estimate; the real amount follows the engineer design.',hbg:'1 bag of cement is about 1.25 cft. Bags = cement (cft) ÷ 1.25.',hbk:'1 cft of brick chips = 5 bricks. 287 × 5 = 1,435 bricks.',
+cement:'Cement',sand:'Sand',chips:'Brick chips (khoa)',rod:'Steel rod',
+u_bag:'bag',u_cft:'cft',u_brick:'brick',u_kg:'kg',sft:'sft',cft:'cft',m3:'m³',kg:'kg',ton:'ton',bags:'bags',bricks:'bricks',
+s1:'Step 1: Area',s2:'Step 2: Slab volume',s3:'Step 3: Dry volume',s4:'Step 4: Ratio total',s5:'Step 5: Cement',s6:'Step 6: Sand',s7:'Step 7: Brick chips (khoa)',s8:'Step 8: Rod volume',s9:'Step 9: cft → m³',s10:'Step 10: m³ → kg → ton',
+Ar:'Area = Length × Width',Vo:'Volume = Area × Thickness ÷ 12',up:'(rounded up)',Dr:'Dry volume = Volume ×',Ra:'Cement + Sand + Chips',one:'one part',per:'cft per part',Bg:'Bags = ',Ch:'Bricks = ',Rd:'Rod = Volume × ',Cv:'1 cft = 0.028316 m³',De:'Steel density = 7850 kg/m³'}
+};
+let lang='bn';
+const t=k=>D[lang][k];
+const $=id=>document.getElementById(id);
+const nv=id=>parseFloat($(id).value)||0;
+const f=(x,d=2)=>Number(x).toLocaleString(lang==='bn'?'bn-BD':'en-US',{maximumFractionDigits:d});
+const defs={L:32,W:25,T:5,rc:1,rs:2,rk:4,df:1.5,rp:1,bg:1.25,bk:5};
+const items=[{k:'cement',u:'u_bag',rate:600},{k:'sand',u:'u_cft',rate:45},{k:'chips',u:'u_brick',rate:11},{k:'rod',u:'u_kg',rate:95}];
+
+$('inp').innerHTML=Object.keys(defs).map(k=>`<div><label id="l_${k}"></label><input id="${k}" type="number" value="${defs[k]}" step="any"><small class="hint" id="h_${k}"></small></div>`).join('');
+$('rows').innerHTML=items.map(i=>`<tr><td id="n_${i.k}"></td><td><input type="number" id="q_${i.k}" step="any" data-q="1"></td><td id="u_${i.k}"></td><td><input type="number" id="r_${i.k}" value="${i.rate}" step="any"></td><td id="c_${i.k}"></td></tr>`).join('');
+
+function calc(){
+ document.documentElement.lang=lang;
+ document.querySelectorAll('[data-k]').forEach(e=>e.textContent=t(e.dataset.k));
+ Object.keys(defs).forEach(k=>{$('l_'+k).textContent=t(k);$('h_'+k).textContent=t('h'+k)});
+ $('lg').textContent=lang==='bn'?'🌐 English':'🌐 বাংলা';
+ $('th').textContent=TH[theme][0]+' '+TH[theme][lang==='bn'?1:2];
+ $('rq').textContent=lang==='bn'?'↺ পরিমাণ অটো করুন (রিসেট)':'↺ Reset quantities to auto';
+ const L=nv('L'),W=nv('W'),T=nv('T'),rc=nv('rc'),rs=nv('rs'),rk=nv('rk'),df=nv('df'),rp=nv('rp'),bg=nv('bg')||1,bk=nv('bk');
+ const sum=rc+rs+rk||1,area=L*W,vol=Math.ceil(area*T/12),dry=vol*df,unit=dry/sum;
+ const cc=Math.ceil(unit*rc),bags=Math.ceil(cc/bg),sand=Math.ceil(unit*rs),ch=Math.ceil(unit*rk),bricks=Math.ceil(ch*bk);
+ const rc3=vol*rp/100,rm3=rc3*0.028316,rkg=Math.round(rm3*7850),rt=rkg/1000;
+ const auto={cement:bags,sand:sand,chips:bricks,rod:rkg};
+ const q={};
+ items.forEach(i=>{const e=$('q_'+i.k);if(!manual[i.k])e.value=auto[i.k];q[i.k]=parseFloat(e.value)||0;e.style.borderColor=manual[i.k]?'var(--ac)':'';});
+ const S=(a,e,r)=>`<div class="step"><b>${t(a)}</b><div class="eq">${e}</div><div class="res">${r}</div></div>`;
+ const c=t('cft');
+ $('steps').innerHTML=
+ S('s1',`${t('Ar')} = ${f(L)} × ${f(W)}`,`= ${f(area)} ${t('sft')}`)+
+ S('s2',`${t('Vo')} = ${f(area)} × ${f(T)} ÷ ১২`.replace('১২',lang==='bn'?'১২':'12')+` = ${f(area*T/12)} ${t('up')}`,`= ${f(vol)} ${c}`)+
+ S('s3',`${t('Dr')} ${f(df)} = ${f(vol)} × ${f(df)}`,`= ${f(dry)} ${c}`)+
+ S('s4',`${t('Ra')} = ${f(rc)} + ${f(rs)} + ${f(rk)} = ${f(sum)} → ${t('one')} = ${f(dry)} ÷ ${f(sum)}`,`= ${f(unit,3)} ${t('per')}`)+
+ S('s5',`${f(unit,3)} × ${f(rc)} = ${f(unit*rc)} → ${f(cc)} ${c}; ${t('Bg')}${f(cc)} ÷ ${f(bg)}`,`= ${f(bags)} ${t('bags')}`)+
+ S('s6',`${f(unit,3)} × ${f(rs)}`,`= ${f(sand)} ${c}`)+
+ S('s7',`${f(unit,3)} × ${f(rk)} = ${f(ch)} ${c}; ${t('Ch')}${f(ch)} × ${f(bk)}`,`= ${f(bricks)} ${t('bricks')}`)+
+ S('s8',`${t('Rd')}${f(rp)}/100 = ${f(vol)} × ${f(rp)}/100`,`= ${f(rc3)} ${c}`)+
+ S('s9',`${t('Cv')}; ${f(rc3)} × 0.028316`.replace('0.028316',lang==='bn'?'০.০২৮৩১৬':'0.028316'),`= ${f(rm3,4)} ${t('m3')}`)+
+ S('s10',`${t('De')}; ${f(rm3,4)} × ${f(7850,0)} = ${f(rkg)} ${t('kg')}`,`= ${f(rkg)} ${t('kg')} (${f(rt)} ${t('ton')})`);
+ let total=0;
+ items.forEach(i=>{
+  const r=parseFloat($('r_'+i.k).value)||0,cost=q[i.k]*r;total+=cost;
+  $('n_'+i.k).textContent=t(i.k);$('u_'+i.k).textContent=t(i.u);
+  $('c_'+i.k).textContent=f(cost,0);
+ });
+ $('total').textContent='৳ '+f(total,0);
+}
+const manual={};
+document.querySelectorAll('[data-q]').forEach(e=>e.addEventListener('input',()=>{manual[e.id.slice(2)]=true;}));
+$('rq').onclick=()=>{Object.keys(manual).forEach(k=>delete manual[k]);calc()};
+document.querySelectorAll('input').forEach(e=>e.addEventListener('input',calc));
+const TH={light:['☀️','দিন','Day'],dark:['🌙','রাত','Night'],neon:['⚡','নিয়ন','Neon']};
+const order=['light','dark','neon'];
+let theme=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+document.documentElement.dataset.theme=theme;
+$('th').onclick=()=>{theme=order[(order.indexOf(theme)+1)%3];document.documentElement.dataset.theme=theme;calc()};
+$('lg').onclick=()=>{lang=lang==='bn'?'en':'bn';calc()};
+calc();
+</script>
+</body>
+</html>

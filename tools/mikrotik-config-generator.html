@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MikroTik Advanced Config Generator</title>
+<style>
+:root{
+  --bg:#070b16;--surface:#0e1428;--ink:#e8f1ff;--muted:#8a9bc4;--line:#24305a;
+  --c-wan:#ff7a1a;--c-l1:#00e5ff;--c-l2:#39ff88;--c-l3:#c06bff;--c-l4:#ffe14d;--pink:#ff2bd6;--err:#ff6b8a;
+  color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);background-image:radial-gradient(ellipse at 20% -10%,#1a1450 0,transparent 55%),radial-gradient(ellipse at 100% 0,#00323f 0,transparent 45%);background-attachment:fixed;color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:940px;margin:0 auto;padding:26px 16px 60px}
+h1{font-size:1.7rem;margin:0 0 4px;color:#fff;text-shadow:0 0 6px var(--c-l1),0 0 18px var(--c-l1),0 0 38px #0080ff}
+h2{font-size:1.02rem;margin:0 0 12px;color:var(--c-l1);text-shadow:0 0 8px color-mix(in srgb,var(--c-l1) 70%,transparent)}
+.sub{color:var(--muted);margin:0 0 20px}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+section{background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 0 0 1px #0a1030 inset,0 0 22px #00000066}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:3px}
+input[type=text],input[type=number],select{width:100%;font:inherit;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:#080d1e;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--c-l1);box-shadow:0 0 0 2px #00e5ff33,0 0 14px #00e5ff55}
+.seg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.seg label{margin:0;color:var(--ink);font-size:.95rem}
+.seg input{position:absolute;opacity:0}
+.seg span{display:inline-block;padding:7px 18px;border:1.5px solid var(--line);border-radius:999px;cursor:pointer}
+.seg input:checked+span{border-color:var(--pink);color:#fff;box-shadow:0 0 12px var(--pink),0 0 2px var(--pink) inset;text-shadow:0 0 8px var(--pink)}
+.seg input:focus-visible+span{outline:2px solid var(--c-l1);outline-offset:3px}
+.ports{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
+.port{border:1.5px solid var(--pc,var(--line));border-radius:10px;padding:8px;box-shadow:0 0 10px color-mix(in srgb,var(--pc,transparent) 45%,transparent)}
+.port b{display:block;margin-bottom:4px;color:var(--pc,var(--ink))}
+.port.WAN{--pc:var(--c-wan)}.port.LAN1{--pc:var(--c-l1)}.port.LAN2{--pc:var(--c-l2)}.port.LAN3{--pc:var(--c-l3)}.port.LAN4{--pc:var(--c-l4)}
+.lan{border:1.5px solid var(--pc);border-radius:12px;padding:12px;box-shadow:0 0 14px color-mix(in srgb,var(--pc) 35%,transparent)}
+.lan h3{margin:0 0 8px;font-size:1rem;color:var(--pc);text-shadow:0 0 8px var(--pc)}
+.chk{display:flex;gap:8px;align-items:center;margin:8px 0 0}
+.chk input{width:auto;accent-color:var(--pink)}
+.chk label{margin:0;color:var(--ink);font-size:.93rem}
+.hide{display:none}
+.errs{color:var(--err);font-weight:500;margin:0 0 10px;padding-left:18px}
+.errs:empty{display:none}
+textarea{width:100%;min-height:380px;font-size:.83rem;line-height:1.45;padding:12px;border-radius:10px;border:1px solid var(--c-l1);background:#04070f;color:#9dffd8;resize:vertical;box-shadow:0 0 16px #00e5ff33}
+.bar{display:flex;gap:14px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.neon{font:inherit;font-weight:700;font-size:1.05rem;letter-spacing:.02em;cursor:pointer;padding:12px 30px;border-radius:12px;border:2px solid var(--pink);color:#fff;background:#1a0630;
+  text-shadow:0 0 6px #fff,0 0 14px var(--pink);box-shadow:0 0 8px var(--pink),0 0 24px var(--pink),inset 0 0 14px #ff2bd655;animation:pulse 2.6s ease-in-out infinite;transition:transform .12s,background .2s}
+.neon:hover{background:var(--pink);color:#12001a;text-shadow:none;box-shadow:0 0 14px var(--pink),0 0 44px var(--pink),0 0 80px #ff2bd699}
+.neon:active{transform:scale(.96)}
+.neon:focus-visible{outline:3px solid var(--c-l1);outline-offset:4px}
+.neon.alt{border-color:var(--c-l1);background:#04202a;box-shadow:0 0 8px var(--c-l1),0 0 22px var(--c-l1),inset 0 0 12px #00e5ff44;text-shadow:0 0 6px #fff,0 0 14px var(--c-l1);animation:none;padding:9px 20px;font-size:.95rem}
+.neon.alt:hover{background:var(--c-l1);color:#00131a}
+@keyframes pulse{0%,100%{box-shadow:0 0 8px var(--pink),0 0 22px var(--pink),inset 0 0 14px #ff2bd655}50%{box-shadow:0 0 14px var(--pink),0 0 42px var(--pink),inset 0 0 20px #ff2bd699}}
+@media (prefers-reduced-motion:reduce){.neon{animation:none}}
+.warn{border:1px solid var(--c-wan);border-radius:10px;padding:10px 12px;font-size:.88rem;margin-top:12px;box-shadow:0 0 12px #ff7a1a44}
+.ok{color:var(--c-l2);text-shadow:0 0 8px var(--c-l2)}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.head h1{margin:0}
+input:disabled{opacity:.45}
+#lans{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+#f-user{align-items:end}
+.ulist{min-height:150px;font-size:.78rem;line-height:1.4;color:var(--ink);background:#080d1e;border:1.5px solid var(--line);box-shadow:none;padding:8px 10px}
+.ulist:focus{outline:none;border-color:var(--c-l1)}
+:root[data-fx="normal"] textarea.ulist{background:var(--bg);color:var(--ink)}
+.port.WAN2{--pc:var(--c-wan)}.port.Trunk{--pc:var(--pink)}
+/* Normal (non-neon) mode */
+:root[data-fx="normal"]{--bg:#f2f5f7;--surface:#ffffff;--ink:#12212b;--muted:#5a6b76;--line:#d3dce2;--c-wan:#b4541a;--c-l1:#0a5c8f;--c-l2:#0b6b4f;--c-l3:#6b3fa0;--c-l4:#8a6a00;--pink:#0a5c8f;--err:#b3261e;color-scheme:light}
+@media (prefers-color-scheme:dark){:root[data-fx="normal"]{--bg:#0e171d;--surface:#15232c;--ink:#e5eef3;--muted:#92a6b2;--line:#2a3d48;--c-wan:#ffa070;--c-l1:#5cb8ec;--c-l2:#5fd3a4;--c-l3:#c4a2f5;--c-l4:#e8c75a;--pink:#5cb8ec;--err:#ff8a80;color-scheme:dark}}
+:root[data-fx="normal"] body{background-image:none}
+:root[data-fx="normal"] *{text-shadow:none!important;box-shadow:none!important;animation:none!important}
+:root[data-fx="normal"] h1{color:var(--ink)}
+:root[data-fx="normal"] input[type=text],:root[data-fx="normal"] input[type=number],:root[data-fx="normal"] input[type=password],:root[data-fx="normal"] select{background:var(--bg)}
+:root[data-fx="normal"] textarea{background:#0f1c24;color:#d7f0e4;border-color:var(--line)}
+:root[data-fx="normal"] .seg input:checked+span{background:var(--pink);color:#fff}
+:root[data-fx="normal"] .neon{background:var(--pink);color:#fff;border-color:var(--pink)}
+:root[data-fx="normal"] .neon:hover{filter:brightness(1.12)}
+:root[data-fx="normal"] .neon.alt{background:transparent;color:var(--ink);border-color:var(--line)}
+:root[data-fx="normal"] .neon.alt:hover{background:color-mix(in srgb,var(--c-l1) 15%,transparent);color:var(--ink)}
+:root[data-fx="normal"] .ok{color:var(--c-l2)}
+input[type=password]{width:100%;font:inherit;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:#080d1e;color:var(--ink)}
+input[type=password]:focus{outline:none;border-color:var(--c-l1);box-shadow:0 0 0 2px #00e5ff33,0 0 14px #00e5ff55}
+</style>
+<link rel="stylesheet" href="tools.css">
+<script>(function(){try{var v=localStorage.getItem("sakib-theme");if(v==="graphite"||v==="neon"||v==="mono")document.documentElement.dataset.pf=v}catch(e){}})()</script>
+</head>
+<body><nav class="pf-bar" aria-label="Portfolio"><a class="pf-home" href="../index.html">&lt;/&gt; Sakib<span>.Saleh</span></a><div class="pf-links"><a href="../pages/tools.html">All tools</a><a href="mikrotik-setup-studio.html">Setup Studio</a><a href="mikrotik-config-generator.html" aria-current="page">Config Generator</a><a href="mikrotik-troubleshooting-desk.html">Troubleshooting Desk</a><a href="subnet-calculator.html">Subnet Calculator</a><a href="slab-calculator.html">Slab Calculator</a><a href="fiber-fix.html">Fiber Fix</a></div></nav>
+<main>
+  <div class="head"><h1>MikroTik advanced config generator</h1><button class="neon alt" id="fx" type="button" aria-pressed="true">Switch to normal</button></div>
+  <p class="sub">RouterOS script builder with SFP ports, up to 4 LANs, WAN VLAN, speed limits and hardening. Set everything, then press Generate.</p>
+
+  <section>
+    <h2>1. Internet (ISP) mode</h2>
+    <div class="seg">
+      <label><input type="radio" name="m" value="pppoe" checked><span>PPPoE</span></label>
+      <label><input type="radio" name="m" value="static"><span>Static IP</span></label>
+      <label><input type="radio" name="m" value="dhcp"><span>DHCP</span></label>
+    </div>
+    <div class="grid" id="f-pppoe">
+      <div><label for="pu">PPPoE username</label><input type="text" id="pu" value="user@isp" autocomplete="off"></div>
+      <div><label for="pp">PPPoE password</label><input type="text" id="pp" value="password" autocomplete="off"></div>
+      <div><label for="ps">Service name (optional)</label><input type="text" id="ps" autocomplete="off"></div>
+    </div>
+    <div class="grid hide" id="f-static">
+      <div><label for="si">WAN IP / prefix</label><input type="text" id="si" class="mono" value="10.248.71.34/30"></div>
+      <div><label for="sg">Gateway</label><input type="text" id="sg" class="mono" value="10.248.71.33"></div>
+      <div><label for="sd">DNS servers (comma separated)</label><input type="text" id="sd" class="mono" value="8.8.8.8,1.1.1.1"></div>
+    </div>
+    <p class="sub hide" id="f-dhcp" style="margin:0">The router gets IP, gateway and DNS from the ONU or ISP automatically.</p>
+    <div class="grid" style="margin-top:12px;max-width:420px">
+      <div><label for="wv">WAN VLAN ID (optional, 1 to 4094)</label><input type="number" id="wv" min="1" max="4094" placeholder="none"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Second ISP (WAN 2) for failover</h2>
+    <p class="sub" style="margin-bottom:8px;font-size:.88rem">Optional. In step 2, set one port to WAN 2. If the main internet link fails, the router switches to this one. Static mode also pings the gateway to spot a dead link. DHCP and PPPoE switch when the link goes down.</p>
+    <div class="grid"><div><label for="w2m">WAN 2 mode</label><select id="w2m"><option value="dhcp">DHCP</option><option value="pppoe">PPPoE</option><option value="static">Static IP</option></select></div></div>
+    <div class="grid" id="w2-pppoe" style="margin-top:10px"><div><label for="w2u">PPPoE username</label><input type="text" id="w2u" autocomplete="off"></div><div><label for="w2p">PPPoE password</label><input type="text" id="w2p" autocomplete="off"></div></div>
+    <div class="grid hide" id="w2-static" style="margin-top:10px"><div><label for="w2i">WAN 2 IP / prefix</label><input type="text" id="w2i" class="mono" placeholder="203.0.113.10/30"></div><div><label for="w2g">Gateway</label><input type="text" id="w2g" class="mono" placeholder="203.0.113.9"></div></div>
+  </section>
+
+  <section>
+    <h2>2. Port assignment</h2>
+    <p class="sub" style="margin-bottom:8px;font-size:.88rem">Use Trunk (VLAN tagged) for the port that goes to a managed switch or access point carrying your VLANs.</p>
+    <div class="grid" style="max-width:640px;margin-bottom:12px">
+      <div><label for="ne">Ethernet ports</label><input type="number" id="ne" min="1" max="24" value="5"></div>
+      <div><label for="ns">SFP ports</label><input type="number" id="ns" min="0" max="4" value="0"></div>
+      <div><label for="st">SFP port type</label><select id="st"><option value="sfp">sfp1, sfp2 (1G)</option><option value="sfp-sfpplus">sfp-sfpplus1 (10G)</option></select></div>
+    </div>
+    <div class="ports" id="ports"></div>
+  </section>
+
+  <section>
+    <h2>3. LAN networks</h2>
+    <p class="sub" style="margin-bottom:12px">Speed limit 0 means no limit. Limits are in Mbps and apply to the whole LAN.</p>
+    <div class="grid" id="lans"></div>
+  </section>
+
+  <section>
+    <h2>Port forwarding (open a service to the internet)</h2>
+    <p class="sub" style="margin-bottom:6px;font-size:.88rem">One rule per line: protocol,external port,internal IP,internal port,name. Internal port and name are optional. Example: tcp,8080,192.168.10.50,80,web-server</p>
+    <textarea id="pf" class="ulist mono" spellcheck="false" placeholder="tcp,8080,192.168.10.50,80,web-server" aria-label="Port forwarding rules"></textarea>
+  </section>
+
+  <section>
+    <h2>Wi-Fi</h2>
+    <div class="chk"><input type="checkbox" id="wfe"><label for="wfe">Set up Wi-Fi on this router</label></div>
+    <div class="grid" style="margin-top:10px">
+      <div><label for="wfs">Wi-Fi name (SSID)</label><input type="text" id="wfs" value="MikroTik-WiFi" autocomplete="off"></div>
+      <div><label for="wfp">Wi-Fi password</label><input type="password" id="wfp" class="mono" placeholder="8 or more characters" autocomplete="new-password"></div>
+      <div><label for="wfi">Wi-Fi interfaces</label><input type="text" id="wfi" class="mono" value="wlan1"></div>
+      <div><label for="wfv">RouterOS Wi-Fi type</label><select id="wfv"><option value="v6">Wireless (RouterOS 6, wlan1)</option><option value="v7">Wifi package (RouterOS 7, wifi1)</option></select></div>
+      <div><label for="wfl">Put Wi-Fi in</label><select id="wfl"><option value="1">LAN 1</option><option value="2">LAN 2</option><option value="3">LAN 3</option><option value="4">LAN 4</option></select></div>
+      <div><label for="wfc">Country</label><input type="text" id="wfc" class="mono" value="bangladesh"></div>
+    </div>
+    <div class="chk"><input type="checkbox" id="wsp"><label for="wsp">Show password</label></div>
+  </section>
+
+  <section>
+    <h2>4. Options</h2>
+    <div class="grid">
+      <div><label for="rid">Router name (optional)</label><input type="text" id="rid" placeholder="MikroTik-Office"></div>
+      <div><label for="ldns">DHCP clients get DNS</label><input type="text" id="ldns" class="mono" placeholder="blank = router itself"></div>
+    </div>
+    <div class="chk"><input type="checkbox" id="iso" checked><label for="iso">Block traffic between the LANs</label></div>
+    <div class="chk"><input type="checkbox" id="fw" checked><label for="fw">Basic firewall (protect the router from the internet side)</label></div>
+    <div class="chk"><input type="checkbox" id="hd" checked><label for="hd">Harden services (disable telnet, ftp, www, api; limit MAC access to LAN)</label></div>
+    </section>
+
+  <section>
+    <h2>5. Router admin login</h2>
+    <p class="sub" style="margin-bottom:6px">Pick Full control to change settings, or Read-only to view settings without changing them. You log in to WinBox with this user.</p>
+    <div class="chk"><input type="checkbox" id="ue" checked><label for="ue">Create this router user</label></div>
+    <div class="grid" id="f-user" style="margin-top:10px">
+      <div><label for="un">Admin username</label><input type="text" id="un" class="mono" value="netadmin" autocomplete="off"></div>
+      <div><label for="upw">Admin password</label><input type="password" id="upw" class="mono" placeholder="8 or more characters" autocomplete="new-password"></div>
+      <div><label for="ug">Access level</label><select id="ug"><option value="full">Full control</option><option value="read">Read-only</option></select></div>
+      <div><label for="ua">Allowed address (optional)</label><input type="text" id="ua" class="mono" placeholder="e.g. 192.168.10.0/24"></div>
+    </div>
+    <div class="chk"><input type="checkbox" id="sp"><label for="sp">Show password</label></div>
+    <div class="chk"><input type="checkbox" id="da"><label for="da">Disable the default "admin" user (do this only after you can log in with the new user)</label></div>
+  </section>
+
+  <section>
+    <h2>Generated script</h2>
+    <ul class="errs" id="errs"></ul>
+    <div class="bar"><button class="neon" id="gen">Generate script</button><button class="neon alt" id="copy">Copy</button><span id="cm" class="ok"></span></div>
+    <textarea id="out" class="mono" readonly spellcheck="false" aria-label="Generated RouterOS script"></textarea>
+    <div class="warn"><b>Before you apply:</b> use a router with an empty config: <span class="mono">/system reset-configuration no-defaults=yes skip-backup=yes</span>. Connect to a LAN port you assigned, not the WAN port. Written for RouterOS v6 and v7, but I have not tested it on a real device, so try it on a spare router first.</div>
+  </section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const toInt=p=>((p[0]<<24)|(p[1]<<16)|(p[2]<<8)|p[3])>>>0;
+const toIp=n=>[n>>>24,(n>>>16)&255,(n>>>8)&255,n&255].join('.');
+function ip4(s){const m=s.trim().split('.');if(m.length!==4)return null;const p=m.map(x=>/^\d{1,3}$/.test(x)?+x:NaN);return p.some(x=>isNaN(x)||x>255)?null:p}
+function cidr(s){
+  const [a,b]=s.trim().split('/');const p=ip4(a||'');
+  if(!p||!/^\d{1,2}$/.test(b||'')||+b>30||+b<8)return null;
+  const pre=+b,mask=(0xFFFFFFFF<<(32-pre))>>>0,ip=toInt(p),net=(ip&mask)>>>0,bc=(net|(~mask>>>0))>>>0;
+  return {ip,pre,net,bc,txt:toIp(ip)+'/'+pre,netTxt:toIp(net)+'/'+pre};
+}
+const ROLES=['WAN','WAN2','LAN1','LAN2','LAN3','LAN4','Trunk','Unused'];
+const LABEL={WAN:'WAN (ISP in)',WAN2:'WAN 2 (backup ISP)',LAN1:'LAN 1',LAN2:'LAN 2',LAN3:'LAN 3',LAN4:'LAN 4',Trunk:'Trunk (VLAN tagged)',Unused:'Unused'};
+const roles={};
+const DEF=['192.168.10.1/24','192.168.20.1/24','192.168.30.1/24','192.168.40.1/24'];
+function portNames(){
+  const ne=Math.max(1,Math.min(24,+$('ne').value||5)),ns=Math.max(0,Math.min(4,+$('ns').value||0));
+  const a=[];for(let i=1;i<=ne;i++)a.push('ether'+i);
+  for(let i=1;i<=ns;i++)a.push($('st').value+i);
+  return a;
+}
+function buildPorts(){
+  const names=portNames(),box=$('ports');box.innerHTML='';
+  names.forEach((n,i)=>{
+    if(!(n in roles))roles[n]=i===0?'WAN':i<3?'LAN1':i<5?'LAN2':'Unused';
+    const d=document.createElement('div');d.className='port '+roles[n];
+    d.innerHTML=`<b class="mono">${n}</b><select aria-label="Role of ${n}">${ROLES.map(r=>`<option value="${r}"${r===roles[n]?' selected':''}>${LABEL[r]}</option>`).join('')}</select>`;
+    d.querySelector('select').addEventListener('change',e=>{roles[n]=e.target.value;d.className='port '+e.target.value});
+    box.appendChild(d);
+  });
+}
+function buildLans(){
+  const cols=['--c-l1','--c-l2','--c-l3','--c-l4'];
+  $('lans').innerHTML=[1,2,3,4].map(x=>`<div class="lan" style="--pc:var(${cols[x-1]})"><h3>LAN ${x}</h3>
+    <label for="li${x}">Router IP / prefix</label><input type="text" id="li${x}" class="mono" value="${DEF[x-1]}">
+    <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:8px"><div><label for="ld${x}">Download Mbps</label><input type="number" id="ld${x}" min="0" value="0"></div><div><label for="lu${x}">Upload Mbps</label><input type="number" id="lu${x}" min="0" value="0"></div></div>
+    <label for="lb${x}" style="margin-top:10px">Bridge name (LAN ID)</label><input type="text" id="lb${x}" class="mono" value="bridge-lan${x}" autocomplete="off">
+    <label for="lv${x}" style="margin-top:10px">VLAN ID (optional, needs a Trunk port)</label><input type="number" id="lv${x}" min="1" max="4094" placeholder="none">
+    <label for="lm${x}" style="margin-top:10px">Mode for this LAN</label><select id="lm${x}"><option value="dhcp">DHCP (automatic)</option><option value="pppoe">PPPoE (own user and password)</option><option value="static">Static IP per user (reserved by MAC)</option></select>
+    <div class="chk" id="lhw${x}"><input type="checkbox" id="lh${x}" checked><label for="lh${x}">Run DHCP server</label></div>
+    <div class="hide" id="uw${x}">
+      <p class="sub" id="uh${x}" style="font-size:.8rem;margin:8px 0 4px"></p>
+      <textarea id="ut${x}" class="ulist mono" spellcheck="false" aria-label="Users for LAN ${x}"></textarea>
+      <div class="grid" style="grid-template-columns:1fr 1fr auto;align-items:end;margin-top:6px"><div><label for="uc${x}">How many</label><input type="number" id="uc${x}" min="1" max="200" value="10"></div><div><label for="up${x}">Name prefix</label><input type="text" id="up${x}" value="user"></div><button type="button" class="neon alt" id="uf${x}" style="padding:8px 12px;font-size:.85rem">Fill list</button></div>
+      <div class="chk" id="ukw${x}"><input type="checkbox" id="uk${x}" checked><label for="uk${x}">Only listed devices can connect (blocks self-set IPs)</label></div>
+    </div></div>`).join('');
+}
+const brOf=x=>$('lb'+x).value.trim()||'bridge-lan'+x;
+const qq=s=>'"'+String(s).replace(/["\\$]/g,m=>'\\'+m)+'"';
+function wireExtra(){
+  const s2=()=>{const m=$('w2m').value;$('w2-pppoe').classList.toggle('hide',m!=='pppoe');$('w2-static').classList.toggle('hide',m!=='static')};
+  $('w2m').addEventListener('change',s2);s2();
+  const sw=()=>['wfs','wfp','wfi','wfv','wfl','wfc','wsp'].forEach(i=>$(i).disabled=!$('wfe').checked);
+  $('wfe').addEventListener('change',sw);sw();
+  $('wsp').addEventListener('change',()=>{$('wfp').type=$('wsp').checked?'text':'password'});
+  $('wfv').addEventListener('change',()=>{$('wfi').value=$('wfv').value==='v7'?'wifi1':'wlan1'});
+}
+function wifiBlock(act,L,errs){
+  if(!$('wfe').checked)return;
+  const ssid=$('wfs').value.trim(),pw=$('wfp').value,ifs=$('wfi').value.replace(/\s+/g,'').split(',').filter(Boolean),ver=$('wfv').value,lx=+$('wfl').value,cty=$('wfc').value.trim()||'bangladesh';
+  if(!ssid)errs.push('Enter the Wi-Fi name (SSID).');
+  if(pw.length<8)errs.push('Wi-Fi password must be at least 8 characters.');
+  if(!ifs.length)errs.push('Enter the Wi-Fi interface names, for example wlan1.');
+  if(!act.find(o=>o.x===lx)){errs.push('Wi-Fi is set for LAN '+lx+', but that LAN has no ports or IP. Pick another LAN.');return}
+  const br=brOf(lx);
+  L.push('','# Wi-Fi: '+ssid+' on '+br);
+  if(ver==='v6'){
+    L.push('/interface wireless security-profiles','add name=wifi-sec mode=dynamic-keys authentication-types=wpa2-psk wpa2-pre-shared-key='+qq(pw),'/interface wireless');
+    ifs.forEach(i=>L.push('set '+i+' mode=ap-bridge ssid='+qq(ssid)+' security-profile=wifi-sec country='+qq(cty)+' disabled=no'));
+  }else{
+    L.push('/interface wifi security','add name=wifi-sec authentication-types=wpa2-psk,wpa3-psk passphrase='+qq(pw),'/interface wifi configuration','add name=wifi-cfg ssid='+qq(ssid)+' country='+qq(cty)+' security=wifi-sec','/interface wifi');
+    ifs.forEach(i=>L.push('set '+i+' configuration=wifi-cfg disabled=no'));
+  }
+  L.push('/interface bridge port');ifs.forEach(i=>L.push('add bridge='+br+' interface='+i));
+}
+function portFwd(errs){
+  const lines=$('pf').value.split('\n').map(s=>s.trim()).filter(Boolean),out=[];
+  if(!lines.length)return out;
+  out.push('','# Port forwarding');
+  const pOk=s=>/^\d{1,5}(-\d{1,5})?$/.test(s)&&s.split('-').every(v=>+v>=1&&+v<=65535);
+  lines.forEach((ln,i)=>{
+    const f=ln.split(',').map(s=>s.trim()),E=m=>errs.push('Port forward line '+(i+1)+': '+m),pr=(f[0]||'').toLowerCase();
+    if(pr!=='tcp'&&pr!=='udp')return E('protocol must be tcp or udp.');
+    if(!pOk(f[1]||''))return E('external port must be 1 to 65535, or a range like 5000-5010.');
+    if(!ip4(f[2]||''))return E('internal IP is not valid.');
+    if(f[3]&&!pOk(f[3]))return E('internal port is not valid.');
+    out.push('add chain=dstnat in-interface-list=WAN protocol='+pr+' dst-port='+f[1]+' action=dst-nat to-addresses='+f[2]+(f[3]?' to-ports='+f[3]:'')+(f[4]?' comment='+qq(f[4]):''));
+  });
+  return out;
+}
+function rnd(n){const c='abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789',a=new Uint32Array(n);crypto.getRandomValues(a);return Array.from(a).map(v=>c[v%c.length]).join('')}
+function wireLans(){
+  for(let x=1;x<=4;x++){
+    const sync=()=>{const m=$('lm'+x).value;
+      $('uw'+x).classList.toggle('hide',m==='dhcp');$('lhw'+x).classList.toggle('hide',m!=='dhcp');$('ukw'+x).classList.toggle('hide',m!=='static');
+      $('uh'+x).textContent=m==='pppoe'?'One user per line: username,password (optional: ,fixed IP ,speed in Mbps). Example: ali,Pass1234,192.168.'+x+'0.5,10':'One user per line: name,MAC address,IP (optional: ,speed in Mbps). Example: Rahim,AA:BB:CC:11:22:33,192.168.'+x+'0.5,10';
+    };
+    $('lm'+x).addEventListener('change',sync);sync();
+    $('uf'+x).addEventListener('click',()=>{
+      const m=$('lm'+x).value,n=Math.max(1,Math.min(200,+$('uc'+x).value||10)),pre=$('up'+x).value.trim()||'user',c=cidr($('li'+x).value),out=[];
+      for(let i=1;i<=n;i++){const nm=pre+String(i).padStart(2,'0');
+        if(m==='pppoe')out.push(nm+','+rnd(8));else out.push(nm+',MAC-HERE,'+(c?toIp(Math.min(c.net+9+i,c.bc-1)):''));}
+      $('ut'+x).value=out.join('\n');
+    });
+  }
+}
+function userBlock(x,c,br,md,L,errs){
+  if(md==='dhcp')return;
+  const q=s=>'"'+String(s).replace(/["\\$]/g,m=>'\\'+m)+'"';
+  const lines=$('ut'+x).value.split('\n').map(s=>s.trim()).filter(Boolean),rows=[],seen={},ips={};
+  const E=(i,m)=>errs.push('LAN '+x+', line '+(i+1)+': '+m);
+  if(!lines.length){errs.push('LAN '+x+': add at least one user to the list (press Fill list to start).');return}
+  lines.forEach((ln,i)=>{
+    const f=ln.split(',').map(s=>s.trim()),r={nm:f[0]};
+    if(!/^[A-Za-z0-9._@-]+$/.test(r.nm||''))return E(i,'name may use letters, numbers and . _ @ - only.');
+    if(seen[r.nm])return E(i,'duplicate name '+r.nm+'.');seen[r.nm]=1;
+    if(md==='pppoe'){r.pw=f[1]||'';if(!r.pw)return E(i,'password is missing.');r.ip=f[2]||''}
+    else{r.mac=(f[1]||'').toUpperCase();if(!/^([0-9A-F]{2}:){5}[0-9A-F]{2}$/.test(r.mac))return E(i,'MAC address must look like AA:BB:CC:11:22:33.');if(seen['m'+r.mac])return E(i,'MAC '+r.mac+' is used twice.');seen['m'+r.mac]=1;r.ip=f[2]||'';if(!r.ip)return E(i,'IP address is missing.')}
+    if(f[3]&&!(+f[3]>0))return E(i,'speed must be a number in Mbps.');
+    r.sp=+f[3]||0;
+    if(r.ip){const p=ip4(r.ip);if(!p)return E(i,'IP '+r.ip+' is not valid.');const n=toInt(p);
+      if(n<=c.net||n>=c.bc||n===c.ip)return E(i,'IP '+r.ip+' is not usable in '+c.netTxt+'.');
+      if(ips[n])return E(i,'IP '+r.ip+' is used twice.');ips[n]=1;r.n=n}
+    rows.push(r);
+  });
+  const size=c.bc-c.net+1,def=size>=32?c.net+10:c.net+2,maxIp=Object.keys(ips).reduce((m,k)=>Math.max(m,+k),0);
+  const start=Math.max(def,maxIp+1),end=c.bc-1,dn=$('ldns').value.replace(/\s+/g,'')||toIp(c.ip),pr=toIp(start)+'-'+toIp(end),hasPool=start<=end;
+  if(md==='pppoe'&&!hasPool&&rows.some(r=>!r.ip))errs.push('LAN '+x+': the fixed IPs leave no room for other users. Use lower addresses or a bigger subnet.');
+  if(md==='pppoe'){
+    L.push('# PPPoE server on '+br+' ('+rows.length+' users)');
+    if(hasPool)L.push('/ip pool','add name=pool-lan'+x+' ranges='+pr);
+    const sps=Array.from(new Set(rows.map(r=>r.sp).filter(Boolean))),pf='local-address='+toIp(c.ip)+' remote-address=pool-lan'+x+' dns-server='+dn+' interface-list=LAN';
+    L.push('/ppp profile','add name=prof-lan'+x+' '+pf);
+    sps.forEach(s=>L.push('add name=prof-lan'+x+'-'+s+'M '+pf+' rate-limit='+s+'M/'+s+'M'));
+    L.push('/interface pppoe-server server','add service-name=lan'+x+' interface='+br+' default-profile=prof-lan'+x+' authentication=pap,chap,mschap1,mschap2 one-session-per-host=yes disabled=no','/ppp secret');
+    rows.forEach(r=>L.push('add name='+q(r.nm)+' password='+q(r.pw)+' service=pppoe profile=prof-lan'+x+(r.sp?'-'+r.sp+'M':'')+(r.ip?' remote-address='+r.ip:'')));
+  }else{
+    const lock=$('uk'+x).checked;
+    L.push('# Static IP per user (DHCP reservations) on '+br+' ('+rows.length+' users)');
+    if(lock)L.push('/ip dhcp-server','add name=dhcp-lan'+x+' interface='+br+' address-pool=static-only lease-time=1d add-arp=yes disabled=no','/interface bridge set '+br+' arp=reply-only');
+    else L.push('/ip pool','add name=pool-lan'+x+' ranges='+pr,'/ip dhcp-server','add name=dhcp-lan'+x+' interface='+br+' address-pool=pool-lan'+x+' lease-time=1d disabled=no');
+    L.push('/ip dhcp-server network','add address='+c.netTxt+' gateway='+toIp(c.ip)+' dns-server='+dn,'/ip dhcp-server lease');
+    rows.forEach(r=>L.push('add address='+r.ip+' mac-address='+r.mac+' server=dhcp-lan'+x+' comment='+q(r.nm)));
+    const lim=rows.filter(r=>r.sp);
+    if(lim.length){L.push('/queue simple');lim.forEach(r=>L.push('add name='+q('lan'+x+'-'+r.nm)+' target='+r.ip+'/32 max-limit='+r.sp+'M/'+r.sp+'M'))}
+  }
+}
+function gen(){
+  const errs=[],L=[],mode=document.querySelector('input[name=m]:checked').value;
+  const names=portNames(),pl={WAN:[],WAN2:[],Trunk:[],LAN1:[],LAN2:[],LAN3:[],LAN4:[]};
+  names.forEach(n=>{if(pl[roles[n]])pl[roles[n]].push(n)});
+  if(pl.WAN.length!==1)errs.push('Choose exactly one WAN port (the port that goes to the ONU).');
+  const wan=pl.WAN[0]||names[0];
+  const act=[];
+  for(let x=1;x<=4;x++){
+    if(!pl['LAN'+x].length&&!($('lv'+x).value&&pl.Trunk.length))continue;
+    const c=cidr($('li'+x).value);
+    if(!c)errs.push('LAN '+x+' needs a valid IP/prefix like 192.168.'+x+'0.1/24 (prefix 8 to 30).');
+    else{const bn=brOf(x);if(!/^[A-Za-z0-9._-]+$/.test(bn))errs.push('LAN '+x+' bridge name may use letters, numbers and . _ - only.');else if(act.some(o=>brOf(o.x)===bn))errs.push('Bridge name '+bn+' is used twice.');const vv=$('lv'+x).value;if(vv&&!(+vv>=1&&+vv<=4094))errs.push('LAN '+x+' VLAN ID must be from 1 to 4094.');else if(vv&&act.some(o=>o.vv===vv))errs.push('VLAN ID '+vv+' is used twice.');if(vv&&!pl.Trunk.length)errs.push('LAN '+x+' has a VLAN ID, so set one port to Trunk (VLAN tagged) in step 2.');act.push({x,c,ports:pl['LAN'+x],vv})}
+  }
+  if(!act.length&&!errs.length)errs.push('Assign at least one port to a LAN.');
+  for(let i=0;i<act.length;i++)for(let j=i+1;j<act.length;j++){
+    const a=act[i].c,b=act[j].c;if(a.net<=b.bc&&b.net<=a.bc)errs.push('LAN '+act[i].x+' and LAN '+act[j].x+' subnets overlap.');
+  }
+  const vid=+$('wv').value||0;
+  if($('wv').value&&(vid<1||vid>4094))errs.push('WAN VLAN ID must be from 1 to 4094.');
+  const base=vid?'vlan-wan':wan;
+  let wanIf=base;
+  const pu=$('pu').value,pp=$('pp').value,ps=$('ps').value.trim();
+  const si=cidr($('si').value),sg=$('sg').value.trim(),sd=$('sd').value.replace(/\s+/g,'');
+  if(mode==='pppoe'){wanIf='pppoe-out1';if(!pu)errs.push('Enter the PPPoE username.')}
+  if(mode==='static'){
+    if(!si)errs.push('Static WAN needs a valid IP/prefix.');
+    if(!ip4(sg))errs.push('Static WAN needs a valid gateway.');
+    else if(si&&(toInt(ip4(sg))<si.net||toInt(ip4(sg))>si.bc))errs.push('The gateway is not inside the WAN subnet.');
+    if(sd&&sd.split(',').some(x=>!ip4(x)))errs.push('DNS servers must be valid IPs separated by commas.');
+  }
+  const q=s=>'"'+s.replace(/(["\\$])/g,'\\$1')+'"';
+  L.push('# MikroTik config - WAN mode: '+mode.toUpperCase()+' on '+wan+(vid?' (VLAN '+vid+')':''));
+  const rid=$('rid').value.trim();
+  if(rid)L.push('/system identity set name='+q(rid));
+  L.push('','# Interface lists','/interface list','add name=WAN','add name=LAN','/interface list member','add list=WAN interface='+wanIf);
+  act.forEach(a=>L.push('add list=LAN interface='+brOf(a.x)));
+  if(vid)L.push('','# WAN VLAN','/interface vlan','add name=vlan-wan interface='+wan+' vlan-id='+vid);
+  L.push('','# WAN: '+mode.toUpperCase());
+  if(mode==='pppoe')L.push('/interface pppoe-client','add name=pppoe-out1 interface='+base+' user='+q(pu)+' password='+q(pp)+(ps?' service-name='+q(ps):'')+' default-route-distance=1 add-default-route=yes use-peer-dns=yes disabled=no');
+  else if(mode==='static')L.push('/ip address','add address='+(si?si.txt:'x.x.x.x/xx')+' interface='+base,'/ip route','add dst-address=0.0.0.0/0 gateway='+sg+' distance=1'+(pl.WAN2.length?' check-gateway=ping':''),'/ip dns','set servers='+(sd||'8.8.8.8,1.1.1.1'));
+  else L.push('/ip dhcp-client','add interface='+base+' default-route-distance=1 add-default-route=yes use-peer-dns=yes disabled=no');
+  if(pl.WAN2.length>1)errs.push('Choose only one WAN 2 port.');
+  if(pl.WAN2.length){
+    const w2=pl.WAN2[0],m2=$('w2m').value;let if2=w2;
+    L.push('','# WAN 2 (backup ISP, failover): '+m2.toUpperCase()+' on '+w2);
+    if(m2==='pppoe'){
+      if(!$('w2u').value)errs.push('Enter the WAN 2 PPPoE username.');
+      if2='pppoe-out2';
+      L.push('/interface pppoe-client','add name=pppoe-out2 interface='+w2+' user='+qq($('w2u').value)+' password='+qq($('w2p').value)+' add-default-route=yes default-route-distance=2 use-peer-dns=no disabled=no');
+    }else if(m2==='static'){
+      const c2=cidr($('w2i').value),g2=$('w2g').value.trim();
+      if(!c2)errs.push('WAN 2 needs a valid IP/prefix.');
+      if(!ip4(g2))errs.push('WAN 2 needs a valid gateway.');
+      else if(c2&&(toInt(ip4(g2))<c2.net||toInt(ip4(g2))>c2.bc))errs.push('The WAN 2 gateway is not inside its subnet.');
+      L.push('/ip address','add address='+(c2?c2.txt:'x.x.x.x/xx')+' interface='+w2,'/ip route','add dst-address=0.0.0.0/0 gateway='+g2+' distance=2 check-gateway=ping');
+    }else L.push('/ip dhcp-client','add interface='+w2+' add-default-route=yes default-route-distance=2 use-peer-dns=no disabled=no');
+    L.push('/interface list member','add list=WAN interface='+if2);
+  }
+  L.push('/ip dns set allow-remote-requests=yes');
+  act.forEach(({x,c,ports})=>{
+    const br=brOf(x);
+    L.push('','# LAN '+x+' ('+ports.join(', ')+') - '+c.netTxt,'/interface bridge','add name='+br,'/interface bridge port');
+    ports.forEach(p=>L.push('add bridge='+br+' interface='+p));
+    const vl=+$('lv'+x).value||0;
+    if(vl&&pl.Trunk.length)pl.Trunk.forEach(t=>L.push('/interface vlan','add name=vlan'+vl+'-'+t+' interface='+t+' vlan-id='+vl,'/interface bridge port','add bridge='+br+' interface=vlan'+vl+'-'+t));
+    const md=$('lm'+x).value;
+    if(md!=='pppoe')L.push('/ip address','add address='+c.txt+' interface='+br);
+    userBlock(x,c,br,md,L,errs);
+    if(md==='dhcp'&&$('lh'+x).checked){
+      const size=c.bc-c.net+1,start=size>=32?c.net+10:c.net+2,dn=$('ldns').value.replace(/\s+/g,'')||toIp(c.ip);
+      L.push('/ip pool','add name=pool-lan'+x+' ranges='+toIp(start)+'-'+toIp(c.bc-1),
+        '/ip dhcp-server','add name=dhcp-lan'+x+' interface='+br+' address-pool=pool-lan'+x+' lease-time=1d disabled=no',
+        '/ip dhcp-server network','add address='+c.netTxt+' gateway='+toIp(c.ip)+' dns-server='+dn);
+    }
+    const d=+$('ld'+x).value||0,u=+$('lu'+x).value||0;
+    if(d>0||u>0)L.push('/queue simple','add name=limit-lan'+x+' target='+c.netTxt+' max-limit='+(u?u+'M':'0')+'/'+(d?d+'M':'0')+' comment="upload/download"');
+  });
+  wifiBlock(act,L,errs);
+  L.push('','# NAT','/ip firewall nat','add chain=srcnat out-interface-list=WAN action=masquerade comment="LAN to internet"',...portFwd(errs),'','# Firewall','/ip firewall filter');
+  if($('fw').checked)L.push('add chain=input action=accept connection-state=established,related','add chain=input action=drop connection-state=invalid','add chain=input action=accept protocol=icmp','add chain=input action=accept in-interface-list=LAN','add chain=input action=drop in-interface-list=WAN comment="Drop input from internet"');
+  if($('iso').checked&&act.length>1)act.forEach(a=>act.forEach(b=>{if(a!==b)L.push('add chain=forward action=drop src-address='+a.c.netTxt+' dst-address='+b.c.netTxt+' comment="Isolate LAN'+a.x+' from LAN'+b.x+'"')}));
+  if($('hd').checked)L.push('','# Hardening','/ip service','set telnet disabled=yes','set ftp disabled=yes','set www disabled=yes','set api disabled=yes','set api-ssl disabled=yes','/tool mac-server set allowed-interface-list=LAN','/tool mac-server mac-winbox set allowed-interface-list=LAN','/ip neighbor discovery-settings set discover-interface-list=LAN');
+  if($('ue').checked){
+    const un=$('un').value.trim(),upw=$('upw').value,ua=$('ua').value.trim();
+    if(!/^[A-Za-z0-9._-]+$/.test(un))errs.push('Username may only use letters, numbers, dot, dash and underscore.');
+    if(upw.length<8)errs.push('Password must be at least 8 characters.');
+    if(ua&&!cidr(ua)&&!ip4(ua))errs.push('Allowed address must be an IP or a network like 192.168.10.0/24.');
+    if($('da').checked&&un==='admin')errs.push('The new user cannot be named admin if you disable the default admin.');
+    const ug=$('ug').value;
+    if($('da').checked&&ug==='read')errs.push('Do not disable the default admin while the new user is read-only. You would be locked out of changing settings.');
+    L.push('','# '+(ug==='full'?'Full-control':'Read-only')+' user','/user','add name='+q(un)+' password='+q(upw)+' group='+ug+(ua?' address='+ua:''));
+    if($('da').checked&&un!=='admin')L.push('disable admin');
+  }
+  $('errs').innerHTML='';errs.forEach(e=>{const li=document.createElement('li');li.textContent=e;$('errs').appendChild(li)});
+  $('out').value=L.join('\n')+'\n';
+}
+document.querySelectorAll('input[name=m]').forEach(r=>r.addEventListener('change',()=>{
+  const m=document.querySelector('input[name=m]:checked').value;
+  $('f-pppoe').classList.toggle('hide',m!=='pppoe');$('f-static').classList.toggle('hide',m!=='static');$('f-dhcp').classList.toggle('hide',m!=='dhcp');
+}));
+['ne','ns','st'].forEach(id=>$(id).addEventListener('input',buildPorts));
+$('gen').addEventListener('click',()=>{gen();$('out').scrollIntoView({behavior:'smooth',block:'nearest'})});
+$('copy').addEventListener('click',()=>{
+  const ok=()=>{$('cm').textContent='Copied';setTimeout(()=>$('cm').textContent='',1500)};
+  const fb=()=>{$('out').select();try{document.execCommand('copy');ok()}catch(_){}};
+  try{navigator.clipboard.writeText($('out').value).then(ok,fb)}catch(_){fb()}
+});
+$('sp').addEventListener('change',()=>{$('upw').type=$('sp').checked?'text':'password'});
+const ux=()=>['un','upw','ug','ua','da','sp'].forEach(i=>$(i).disabled=!$('ue').checked);
+$('ue').addEventListener('change',ux);ux();
+const fxb=$('fx'),root=document.documentElement;
+function setFx(v){root.dataset.fx=v;fxb.textContent=v==='neon'?'Switch to normal':'Switch to neon';fxb.setAttribute('aria-pressed',v==='neon'?'true':'false')}
+let saved='neon';try{saved=localStorage.getItem('mt-fx')||'neon'}catch(_){}
+setFx(saved==='normal'?'normal':'neon');
+fxb.addEventListener('click',()=>{const v=root.dataset.fx==='neon'?'normal':'neon';setFx(v);try{localStorage.setItem('mt-fx',v)}catch(_){}});
+buildLans();wireLans();wireExtra();buildPorts();gen();
+</script>
+</body>
+</html>

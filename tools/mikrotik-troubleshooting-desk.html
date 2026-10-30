@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a121a">
+<title>MikroTik Troubleshooting Desk</title>
+<link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="tools.css">
+<script>(function(){try{var v=localStorage.getItem("sakib-theme");if(v==="graphite"||v==="neon"||v==="mono")document.documentElement.dataset.pf=v}catch(e){}})()</script>
+<style>
+:root{--panel:var(--pf-surf);--panel2:color-mix(in srgb,var(--pf-surf) 80%,var(--pf-ink));--text:var(--pf-ink);--bar:56px}
+*{box-sizing:border-box}body{margin:0}
+button,input,select{font:inherit}button{cursor:pointer}
+.app{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:calc(100vh - var(--bar))}
+.sidebar{border-right:1px solid var(--pf-line);padding:24px 16px;background:color-mix(in srgb,var(--pf-bg) 82%,transparent);position:sticky;top:var(--bar);height:calc(100vh - var(--bar));overflow:auto}
+.brand{display:flex;gap:12px;align-items:center;padding:2px 8px 24px}
+.brand-icon{width:42px;height:42px;flex:none;display:grid;place-items:center;background:var(--pf-ac);color:var(--pf-on);border-radius:8px;font:600 26px/1 Editorial,Georgia,serif}
+.brand-title{font:500 23px/1.05 Editorial,Georgia,serif;letter-spacing:-.01em}
+.brand p{font-size:11px;color:var(--pf-mu);margin:3px 0 0}
+.nav-label{color:var(--pf-mu);font-size:11px;letter-spacing:.15em;padding:12px 10px 7px}
+.nav{display:grid;gap:4px}
+.nav button{border:1px solid transparent;background:transparent;color:var(--pf-mu);text-align:left;padding:10px 12px;border-radius:8px;display:flex;align-items:center;gap:10px}
+.nav button:hover,.nav button.active{background:var(--pf-hl);color:var(--pf-ink);border-color:var(--pf-line)}
+.nav button.active{box-shadow:inset 3px 0 var(--pf-ac)!important}
+.nav .emoji{width:20px;text-align:center;color:var(--pf-ac)}
+.side-note{margin:25px 5px 0;padding:13px;border:1px solid var(--pf-line);border-radius:8px;color:var(--pf-mu);font-size:12px}
+.side-note strong{color:var(--pf-ink)}
+main{min-width:0;padding:28px clamp(16px,3vw,42px) 48px;max-width:1500px;width:100%;margin:auto}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.eyebrow{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--pf-ac)}
+.topbar h1{margin:6px 0 4px}
+.sub{color:var(--pf-mu);margin:0}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--pf-line);background:transparent;color:var(--pf-ink);border-radius:999px;padding:10px 20px;min-height:44px;font-size:14px;font-weight:600}
+.btn:hover{border-color:var(--pf-ac);color:var(--pf-ac)}
+.btn.primary{background:var(--pf-ac);border-color:var(--pf-ac);color:var(--pf-on)}
+.btn.primary:hover{filter:brightness(1.1);color:var(--pf-on)}
+.hero{margin:24px 0 18px;border:1px solid var(--pf-line);background:linear-gradient(110deg,var(--pf-hl),var(--pf-surf) 70%);padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.hero h3{font:500 clamp(24px,2.6vw,32px)/1.1 Editorial,Georgia,serif;margin:0 0 6px}
+.hero p{margin:0;color:var(--pf-mu);max-width:700px}
+.hero-icon{font-size:42px;color:var(--pf-ac);opacity:.9}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0 24px}
+.stat{padding:15px 16px;background:var(--pf-surf);border:1px solid var(--pf-line);border-radius:8px}
+.stat .label{font-size:11px;letter-spacing:.14em;color:var(--pf-mu)}
+.stat .value{font:500 30px/1.15 Editorial,Georgia,serif;margin-top:3px;color:var(--pf-ac)}
+.stat .hint{font-size:11px;color:var(--pf-mu)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.search{flex:1;min-width:210px;position:relative}
+.search input{width:100%;border:1px solid var(--pf-line);border-radius:8px;padding:12px 14px 12px 42px;outline:none;min-height:46px}
+.search span{position:absolute;left:14px;top:10px;color:var(--pf-mu);font-size:18px}
+.select{border:1px solid var(--pf-line);border-radius:8px;padding:10px 12px;min-height:46px}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:30px 0 14px}
+.section-head h3{font:500 clamp(26px,2.6vw,34px)/1.1 Editorial,Georgia,serif;margin:0;letter-spacing:-.01em}
+.section-head p{font-size:12px;color:var(--pf-mu);margin:4px 0 0}
+.results-count{font-size:12px;color:var(--pf-mu)}
+.command-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.command{border:1px solid var(--pf-line);background:var(--pf-surf);border-radius:8px;padding:16px;min-width:0;transition:border-color .15s,transform .15s}
+.command:hover{border-color:color-mix(in srgb,var(--pf-ac) 55%,var(--pf-line));transform:translateY(-1px)}
+.cmd-top{display:flex;justify-content:space-between;gap:10px;align-items:start}
+.cmd-title{font-weight:600;font-size:15px;margin:0}
+.category-pill{font-size:10px;letter-spacing:.06em;color:var(--pf-ac);background:color-mix(in srgb,var(--pf-ac) 12%,transparent);border:1px solid color-mix(in srgb,var(--pf-ac) 35%,transparent);border-radius:99px;padding:3px 9px;white-space:nowrap}
+.cmd-desc{font-size:12px;color:var(--pf-mu);margin:7px 0 12px}
+.codebox{background:var(--pf-bg);border:1px solid var(--pf-line);border-radius:6px;padding:12px;position:relative;overflow:auto}
+.codebox pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--pf-ac);font:12px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;padding-right:50px}
+.copy{position:absolute;right:7px;top:7px;border:1px solid var(--pf-line);background:var(--pf-surf);color:var(--pf-ink);border-radius:6px;padding:5px 9px;font-size:11px}
+.copy:hover{border-color:var(--pf-ac);color:var(--pf-ac)}
+.cmd-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:11px}
+.tag{font-size:11px;color:var(--pf-mu)}
+.details{color:var(--pf-ac);border:0;background:transparent;padding:3px;font-size:12px;font-weight:600}
+.extra{display:none;border-top:1px solid var(--pf-line);margin-top:12px;padding-top:10px;font-size:12px;color:var(--pf-mu)}
+.extra.open{display:block}.extra strong{color:var(--pf-ink)}
+.empty{grid-column:1/-1;text-align:center;padding:42px;border:1px dashed var(--pf-line);border-radius:8px;color:var(--pf-mu)}
+.explain{background:var(--pf-bg);border:1px solid var(--pf-line);border-radius:8px;padding:10px 12px;margin:10px 0 0;font-size:12px;color:var(--pf-mu)}
+.explain strong{color:var(--pf-ink)}
+.explain ul{margin:6px 0 0;padding-left:18px}.explain li{margin:5px 0}
+.explain code{color:var(--pf-ac);background:var(--pf-hl);border-radius:5px;padding:1px 6px;font:11px ui-monospace,Consolas,monospace}
+.cmd-bn{color:var(--pf-gold);font-size:12px;margin:10px 0 0}.bn{color:var(--pf-gold)}
+.warning{border:1px solid color-mix(in srgb,var(--pf-warm) 50%,var(--pf-line));background:color-mix(in srgb,var(--pf-warm) 10%,var(--pf-bg));color:var(--pf-ink);padding:13px 15px;border-radius:8px;font-size:12px;margin-top:24px}
+.footer{color:var(--pf-mu);font-size:11px;margin-top:26px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--pf-ac);color:var(--pf-on);border-radius:8px;padding:11px 15px;font-weight:600;font-size:13px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;z-index:40}
+.toast.show{opacity:1;transform:translateY(0)}
+:root[data-pf=neon] .command,:root[data-pf=neon] .stat{box-shadow:0 0 12px #00e5ff44,inset 0 0 8px #ff00ff22!important}
+:root[data-pf=neon] .stat .value,:root[data-pf=neon] .eyebrow{text-shadow:0 0 8px var(--pf-ac)}
+@media(max-width:1000px){.app{grid-template-columns:210px minmax(0,1fr)}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.command-grid{grid-template-columns:1fr}}
+@media(max-width:680px){.app{display:block}.sidebar{height:auto;position:relative;top:0;border-right:0;border-bottom:1px solid var(--pf-line);padding:12px}.brand{padding:4px 5px 12px}.nav-label,.side-note{display:none}.nav{display:flex;overflow:auto;padding-bottom:4px}.nav button{white-space:nowrap;font-size:12px;padding:8px 10px}.nav .emoji{display:none}main{padding:20px 13px 35px}.hero{padding:16px}.hero-icon{display:none}.stats{gap:8px}.stat{padding:12px}.stat .value{font-size:24px}.topbar{align-items:flex-start}.actions{width:100%}.actions .btn{flex:1}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<nav class="pf-bar" aria-label="Portfolio"><a class="pf-home" href="../index.html">&lt;/&gt; Sakib<span>.Saleh</span></a><div class="pf-links"><a href="../pages/tools.html">All tools</a><a href="mikrotik-setup-studio.html">Setup Studio</a><a href="mikrotik-config-generator.html">Config Generator</a><a href="mikrotik-troubleshooting-desk.html" aria-current="page">Troubleshooting Desk</a><a href="subnet-calculator.html">Subnet Calculator</a><a href="slab-calculator.html">Slab Calculator</a><a href="fiber-fix.html">Fiber Fix</a></div></nav>
+
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-icon">M</div><div><div class="brand-title">MikroTik Desk</div><p>Network troubleshooting toolkit</p></div></div>
+  <div class="nav-label">WORKSPACE</div>
+  <nav class="nav" id="nav">
+    <button class="active" data-cat="All"><span class="emoji">▦</span>All commands</button>
+    <button data-cat="Basics"><span class="emoji">⌘</span>System & basics</button>
+    <button data-cat="Connectivity"><span class="emoji">⌁</span>Ping & routing</button>
+    <button data-cat="Interfaces"><span class="emoji">⇄</span>Interfaces & VLAN</button>
+    <button data-cat="Subscribers"><span class="emoji">◎</span>DHCP & PPPoE</button>
+    <button data-cat="Firewall"><span class="emoji">⬡</span>Firewall & NAT</button>
+    <button data-cat="Traffic"><span class="emoji">↗</span>Traffic & queues</button>
+    <button data-cat="Backup"><span class="emoji">▣</span>Backup & recovery</button>
+    <button data-cat="Playbooks"><span class="emoji">✔</span>Playbooks</button>
+  </nav>
+  <div class="side-note"><strong>Field note</strong><br>Start with read-only checks. Export a backup before making configuration changes.</div>
+</aside>
+<main>
+  <div class="topbar">
+    <div><div class="eyebrow">NETWORK OPERATIONS / ROUTEROS</div><h1>Troubleshooting Desk</h1><p class="sub">Find, understand and copy MikroTik RouterOS commands.</p></div>
+    <div class="actions"><button class="btn primary" id="exportBtn">Export command list ↓</button></div>
+  </div>
+  <section class="hero"><div><h3>Diagnose first. Change safely.</h3><p>Try the Playbooks for step-by-step checks, plus backup read/write/restore commands. Search common commands for connectivity, IP addressing, PPPoE, VLAN, firewall rules, traffic monitoring and backups.</p></div><div class="hero-icon">⌁</div></section>
+  <section class="stats">
+    <div class="stat"><div class="label">COMMANDS</div><div class="value" id="statTotal">0</div><div class="hint">RouterOS v6.49+ reference</div></div>
+    <div class="stat"><div class="label">CATEGORIES</div><div class="value">9</div><div class="hint">From basics to recovery</div></div>
+    <div class="stat"><div class="label">QUICK CHECK</div><div class="value">Ping</div><div class="hint">Test reachability</div></div>
+    <div class="stat"><div class="label">SAFETY</div><div class="value">Backup</div><div class="hint">Before configuration edits</div></div>
+  </section>
+  <div class="toolbar">
+    <label class="search"><span>⌕</span><input id="search" type="search" placeholder="Search commands, e.g. ping, NAT, DHCP..." autocomplete="off"></label>
+    <select class="select" id="level"><option value="All">All levels</option><option value="Basic">Basic</option><option value="Intermediate">Intermediate</option><option value="Advanced">Advanced</option></select>
+    <select class="select" id="sort"><option value="default">Default order</option><option value="az">Name A–Z</option></select>
+  </div>
+  <div class="section-head"><div><h3 id="sectionTitle">All commands</h3><p>Copy a command to use it in Winbox Terminal or SSH.</p></div><div class="results-count" id="count"></div></div>
+  <section class="command-grid" id="commands"></section>
+  <div class="warning"><strong>⚠ Use with care:</strong> Commands are examples and may vary by RouterOS version, installed packages and interface names. Replace sample IPs and interfaces with your own. Avoid running destructive commands on a production router without authorization and a verified backup. Do not share exports containing passwords or secrets.</div>
+  <div class="footer"><span>MikroTik Desk · Standalone HTML · No router connection required</span><span>Commands are reference examples, not a live diagnostic connection.</span></div>
+</main>
+</div>
+<div class="toast" id="toast">Copied to clipboard</div>
+<script>
+const data = [
+{title:"Show system resources",cat:"Basics",level:"Basic",desc:"Check uptime, CPU, memory and RouterOS resource information.",cmd:"/system resource print",tip:"Useful first check when the router is slow or unresponsive."},
+{title:"Show RouterOS version",cat:"Basics",level:"Basic",desc:"Confirm the installed RouterOS version and build.",cmd:"/system package print",tip:"Some commands differ between RouterOS v6, v7 and installed packages."},
+{title:"Show router identity",cat:"Basics",level:"Basic",desc:"Identify the router you are connected to.",cmd:"/system identity print",tip:"Confirm you are on the intended router before changing configuration."},
+{title:"View recent logs",cat:"Basics",level:"Basic",desc:"Review system, PPP and interface messages.",cmd:"/log print",tip:"Search for authentication failures, link flaps or DHCP issues."},
+{title:"Follow live logs",cat:"Basics",level:"Intermediate",desc:"Watch new log messages as they arrive.",cmd:"/log print follow",tip:"Stop the live output with Ctrl+C in the terminal."},
+{title:"Export configuration",cat:"Basics",level:"Basic",desc:"Print the configuration in readable RouterOS syntax.",cmd:"/export",tip:"Review before editing. Inspect output for sensitive values before sharing."},
+{title:"Ping public IP",cat:"Connectivity",level:"Basic",desc:"Test IP reachability without relying on DNS.",cmd:"/ping 8.8.8.8 count=10",tip:"If this fails, check WAN address, default route, upstream and firewall."},
+{title:"Ping a gateway",cat:"Connectivity",level:"Basic",desc:"Test reachability to the next-hop router.",cmd:"/ping 192.168.1.1 count=10",tip:"Replace the example address with your actual gateway."},
+{title:"Test DNS resolution",cat:"Connectivity",level:"Basic",desc:"Resolve a domain name using the router's configured DNS.",cmd:":put [:resolve \"google.com\"]",tip:"If IP ping works but name resolution fails, inspect /ip dns print."},
+{title:"Traceroute destination",cat:"Connectivity",level:"Intermediate",desc:"Inspect the network path toward a destination.",cmd:"/tool traceroute 8.8.8.8",tip:"Intermediate hops may not respond even when forwarding works."},
+{title:"Show IP addresses",cat:"Connectivity",level:"Basic",desc:"List IP addresses configured on router interfaces.",cmd:"/ip address print detail",tip:"Check whether WAN and LAN interfaces have expected addresses."},
+{title:"Show active routes",cat:"Connectivity",level:"Basic",desc:"Display routes that are currently active.",cmd:"/ip route print where active",tip:"Look for an active default route (0.0.0.0/0) for internet access."},
+{title:"Show default route",cat:"Connectivity",level:"Basic",desc:"Find the IPv4 default route.",cmd:"/ip route print where dst-address=0.0.0.0/0",tip:"A configured route may still be inactive if its gateway is unreachable."},
+{title:"Show ARP table",cat:"Connectivity",level:"Intermediate",desc:"Check IP-to-MAC neighbor mappings.",cmd:"/ip arp print detail",tip:"Useful for local subnet connectivity and duplicate-IP investigation."},
+{title:"Show interface status",cat:"Interfaces",level:"Basic",desc:"See interface names, running flags and link state.",cmd:"/interface print detail",tip:"The R flag commonly indicates a running interface."},
+{title:"Monitor Ethernet link",cat:"Interfaces",level:"Intermediate",desc:"Check negotiated speed, duplex and link status.",cmd:"/interface ethernet monitor ether1 once",tip:"Replace ether1 with the relevant physical interface name."},
+{title:"Check interface counters",cat:"Interfaces",level:"Intermediate",desc:"Inspect traffic and error counters.",cmd:"/interface print stats",tip:"Increasing errors or drops can indicate a link, cabling or hardware issue."},
+{title:"Monitor live traffic",cat:"Traffic",level:"Basic",desc:"Watch current transmit and receive rates on an interface.",cmd:"/interface monitor-traffic ether1",tip:"Use the actual WAN or LAN interface name."},
+{title:"Show bridge ports",cat:"Interfaces",level:"Intermediate",desc:"Check which interfaces belong to a bridge.",cmd:"/interface bridge port print detail",tip:"Verify port membership and flags when devices on a LAN cannot communicate."},
+{title:"Show bridge VLAN table",cat:"Interfaces",level:"Advanced",desc:"Inspect VLAN membership and tagged/untagged ports.",cmd:"/interface bridge vlan print detail",tip:"Check bridge VLAN filtering, PVIDs and tagged trunk ports together."},
+{title:"Show VLAN interfaces",cat:"Interfaces",level:"Intermediate",desc:"List configured VLAN interfaces.",cmd:"/interface vlan print detail",tip:"Confirm VLAN ID and parent interface."},
+{title:"Show DHCP leases",cat:"Subscribers",level:"Basic",desc:"See clients that received addresses from the DHCP server.",cmd:"/ip dhcp-server lease print detail",tip:"If a client gets no IP, check server state, pool, bridge and VLAN."},
+{title:"Show DHCP server status",cat:"Subscribers",level:"Basic",desc:"Inspect configured DHCP servers and their interfaces.",cmd:"/ip dhcp-server print detail",tip:"Make sure the server is enabled and attached to the correct LAN/VLAN."},
+{title:"Show DHCP client status",cat:"Subscribers",level:"Intermediate",desc:"Check whether the WAN obtains an address via DHCP.",cmd:"/ip dhcp-client print detail",tip:"Look for bound status and the assigned gateway."},
+{title:"Show PPPoE client",cat:"Subscribers",level:"Intermediate",desc:"Inspect PPPoE client interface status and settings.",cmd:"/interface pppoe-client print detail",tip:"Check credentials, service name, parent interface and logs."},
+{title:"Show active PPP sessions",cat:"Subscribers",level:"Intermediate",desc:"On a PPPoE server, view currently active subscriber sessions.",cmd:"/ppp active print detail",tip:"Run on the router hosting the PPP server."},
+{title:"Show NAT rules",cat:"Firewall",level:"Basic",desc:"Review masquerade and port-forwarding rules.",cmd:"/ip firewall nat print detail",tip:"For internet sharing, check the matching srcnat/masquerade rule and its counter."},
+{title:"Show firewall filter rules",cat:"Firewall",level:"Intermediate",desc:"Inspect input, forward and output filter rules.",cmd:"/ip firewall filter print detail",tip:"Rule order matters. Avoid disabling rules remotely without a recovery path."},
+{title:"Show firewall counters",cat:"Firewall",level:"Intermediate",desc:"Review packet/byte counters for filter rules.",cmd:"/ip firewall filter print stats",tip:"Counters help identify whether traffic matches a rule."},
+{title:"Count connections",cat:"Firewall",level:"Intermediate",desc:"Count entries in the connection tracking table.",cmd:"/ip firewall connection print count-only",tip:"A very high count can contribute to resource pressure, depending on device capacity."},
+{title:"Torch traffic",cat:"Traffic",level:"Advanced",desc:"Inspect source/destination traffic live on an interface.",cmd:"/tool torch ether1",tip:"Use a trusted management session and avoid drawing conclusions from a very short sample."},
+{title:"Check CPU profile",cat:"Traffic",level:"Advanced",desc:"See which router processes are using CPU.",cmd:"/tool profile",tip:"Useful for investigating high CPU usage; available output depends on RouterOS version."},
+{title:"Create binary backup",cat:"Backup",level:"Basic",desc:"Create a local binary backup before configuration changes.",cmd:"/system backup save name=before-change",tip:"Download the file to secure storage. Binary backups can contain sensitive data."},
+{title:"Export to file",cat:"Backup",level:"Basic",desc:"Save readable configuration to a file in the router's file list.",cmd:"/export file=config-before-change",tip:"Use /file print to locate the file, then download it securely."},
+{title:"List router files",cat:"Backup",level:"Basic",desc:"Show backup and export files stored on the router.",cmd:"/file print",tip:"Remove old sensitive files only after confirming they are no longer needed."},
+{title:"Safe Mode",cat:"Backup",level:"Intermediate",desc:"Use Winbox/terminal Safe Mode for risky remote configuration changes.",cmd:"Ctrl+X  (toggle Safe Mode in terminal)",tip:"If the management session unexpectedly disconnects, uncommitted Safe Mode changes may roll back. Verify behavior for your RouterOS version."},
+{title:"Check service exposure",cat:"Firewall",level:"Intermediate",desc:"Review router management services and listening ports.",cmd:"/ip service print",tip:"Restrict management services to trusted networks; don't expose Winbox/SSH publicly without appropriate controls."},
+{title:"Router model and board info",cat:"Basics",level:"Basic",desc:"Identify the exact RouterBOARD model and hardware details.",cmd:"/system routerboard print",tip:"Your screenshot shows RB450Gx4 with RouterOS 6.49.13. These commands are compatible with RouterOS v6 unless otherwise noted."},
+{title:"Check date and time",cat:"Basics",level:"Basic",desc:"Inspect router clock and time settings.",cmd:"/system clock print",tip:"Incorrect time can make logs confusing and affect certificate-based services."},
+{title:"Show CPU by process",cat:"Traffic",level:"Advanced",desc:"Find processes consuming CPU.",cmd:"/tool profile",tip:"Run briefly during the issue and compare results; output depends on version and packages."},
+{title:"Check memory and storage",cat:"Basics",level:"Basic",desc:"Check free memory and disk space.",cmd:"/system resource print",tip:"Low free memory or high CPU may explain sluggish management."},
+{title:"List configured DNS",cat:"Connectivity",level:"Basic",desc:"Inspect DNS servers and whether remote requests are allowed.",cmd:"/ip dns print",tip:"Only enable allow-remote-requests when the router is intended to serve DNS to trusted clients; firewall it from the WAN."},
+{title:"Inspect DNS cache",cat:"Connectivity",level:"Intermediate",desc:"View cached DNS records.",cmd:"/ip dns cache print",tip:"Useful when comparing DNS behavior. Clear cache only if necessary and understood."},
+{title:"Inspect IP pools",cat:"Subscribers",level:"Intermediate",desc:"Check DHCP and PPP address pools.",cmd:"/ip pool print detail",tip:"Pool exhaustion can prevent new clients from receiving an address."},
+{title:"Show DHCP networks",cat:"Subscribers",level:"Intermediate",desc:"Check gateway, DNS and subnet options offered to DHCP clients.",cmd:"/ip dhcp-server network print detail",tip:"A wrong gateway or subnet mask can leave clients connected but unable to reach the internet."},
+{title:"Show PPP profiles",cat:"Subscribers",level:"Intermediate",desc:"Inspect rate limits, local/remote address and profile settings.",cmd:"/ppp profile print detail",tip:"Check the profile assigned to the subscriber; avoid sharing secret values."},
+{title:"Show PPP secrets safely",cat:"Subscribers",level:"Intermediate",desc:"List PPP account names and profile assignments.",cmd:"/ppp secret print",tip:"This output can contain credentials. Do not post or share it publicly."},
+{title:"Show PPPoE server settings",cat:"Subscribers",level:"Advanced",desc:"Inspect PPPoE server bindings and service names.",cmd:"/interface pppoe-server server print detail",tip:"Available and relevant only when this router runs a PPPoE server."},
+{title:"Show PPPoE server interfaces",cat:"Subscribers",level:"Advanced",desc:"Inspect the interface on which PPPoE server discovery is listening.",cmd:"/interface pppoe-server server print",tip:"Confirm VLAN/bridge placement and service state when customers cannot discover the server."},
+{title:"Show bridge MAC table",cat:"Interfaces",level:"Intermediate",desc:"See learned MAC addresses and their bridge ports.",cmd:"/interface bridge host print",tip:"Useful to confirm which port learned a client MAC address."},
+{title:"Show bridge configuration",cat:"Interfaces",level:"Intermediate",desc:"Inspect bridge state and VLAN filtering.",cmd:"/interface bridge print detail",tip:"Check bridge state and vlan-filtering when LAN devices cannot communicate."},
+{title:"Show interface names and flags",cat:"Interfaces",level:"Basic",desc:"List actual interface names before using monitor commands.",cmd:"/interface print",tip:"Your device uses names such as \"Eth_1 DHCP_IN\". Use quotes around names that contain spaces."},
+{title:"Monitor your actual WAN interface",cat:"Traffic",level:"Basic",desc:"Example for the interface name shown in your screenshot.",cmd:"/interface monitor-traffic \"Eth_1 DHCP_IN\"",tip:"Replace the name with an exact interface name from /interface print. Interface names are case-sensitive in practice; copy the displayed spelling."},
+{title:"Monitor PPPoE WAN interface",cat:"Traffic",level:"Intermediate",desc:"Monitor the PPPoE interface shown in your interface list.",cmd:"/interface monitor-traffic pppoe-out2",tip:"This only shows traffic on that PPPoE interface; it does not confirm end-to-end internet access."},
+{title:"Check Ethernet link status",cat:"Interfaces",level:"Intermediate",desc:"Check negotiated link speed, duplex and link status on a physical port.",cmd:"/interface ethernet monitor [find name=\"Eth_1 DHCP_IN\"] once",tip:"If your RouterOS build does not accept the find expression here, use the exact interface name directly in quotes."},
+{title:"Inspect interface errors",cat:"Interfaces",level:"Intermediate",desc:"Review per-interface packet and error counters.",cmd:"/interface print stats-detail",tip:"Compare counters before and after a test to see whether errors increase."},
+{title:"Check NAT masquerade",cat:"Firewall",level:"Basic",desc:"Review source NAT rules used for LAN internet access.",cmd:"/ip firewall nat print detail",tip:"Look for a matching srcnat/masquerade rule for the correct WAN interface or WAN interface list."},
+{title:"Check firewall drops",cat:"Firewall",level:"Intermediate",desc:"Review filter rules and counters for traffic being blocked.",cmd:"/ip firewall filter print stats detail",tip:"Do not disable all firewall rules as a test; inspect rule order and counters first."},
+{title:"Check firewall address lists",cat:"Firewall",level:"Intermediate",desc:"Inspect IP lists used by filter and NAT rules.",cmd:"/ip firewall address-list print detail",tip:"An address may be blocked because it belongs to a list referenced by a firewall rule."},
+{title:"Check mangle rules",cat:"Firewall",level:"Advanced",desc:"Inspect packet marking and policy-routing rules.",cmd:"/ip firewall mangle print detail",tip:"Mangle marks can affect routing, queues and multi-WAN behavior."},
+{title:"Check connection tracking settings",cat:"Firewall",level:"Advanced",desc:"Inspect connection tracking configuration.",cmd:"/ip firewall connection tracking print",tip:"Avoid clearing all connections on a production router unless you understand the impact."},
+{title:"Inspect active connections for an IP",cat:"Firewall",level:"Advanced",desc:"Filter connection entries for a sample LAN client.",cmd:"/ip firewall connection print where src-address~\"192.168.88.10\"",tip:"Replace the sample IP. RouterOS v6 output and filtering behavior may vary by field."},
+{title:"Check routing rules",cat:"Connectivity",level:"Advanced",desc:"Inspect policy routing rules.",cmd:"/ip route rule print",tip:"RouterOS v6 uses /ip route rule; RouterOS v7 has newer routing-table features."},
+{title:"Check IP services",cat:"Firewall",level:"Intermediate",desc:"Inspect Winbox, SSH, API and other management services.",cmd:"/ip service print detail",tip:"Restrict management access to trusted IP ranges. Do not expose management ports to the public internet unnecessarily."},
+{title:"Check active management sessions",cat:"Basics",level:"Intermediate",desc:"See users currently logged into the router.",cmd:"/user active print",tip:"Use this to review active management sessions."},
+{title:"Check system scheduler",cat:"Basics",level:"Intermediate",desc:"Review scheduled scripts and recurring tasks.",cmd:"/system scheduler print detail",tip:"Unexpected scheduled tasks deserve review. Do not remove tasks before confirming their purpose."},
+{title:"Check scripts",cat:"Basics",level:"Intermediate",desc:"List configured RouterOS scripts.",cmd:"/system script print detail",tip:"Scripts may contain sensitive values; review before sharing output."},
+{title:"Check configured services",cat:"Basics",level:"Intermediate",desc:"List enabled router management services.",cmd:"/ip service print",tip:"Disable or restrict unused services carefully, especially over remote access."},
+{title:"Create dated readable export",cat:"Backup",level:"Basic",desc:"Save configuration to a readable .rsc file.",cmd:"/export file=router-config-before-change",tip:"Use /file print to find the export, then download it to secure storage."},
+{title:"Enter Safe Mode",cat:"Backup",level:"Intermediate",desc:"Toggle Safe Mode in Winbox Terminal before risky changes.",cmd:"Ctrl+X",tip:"Safe Mode is a terminal/Winbox interaction, not a RouterOS command. If the session unexpectedly disconnects, changes made in Safe Mode can roll back."},
+{title:"Find interface by exact name",cat:"Interfaces",level:"Intermediate",desc:"Return the internal item identifier for an interface.",cmd:"/interface find where name=\"Eth_1 DHCP_IN\"",tip:"Use the exact name shown by /interface print. This is useful in scripts and commands that accept item IDs."},
+{title:"Show neighbors",cat:"Connectivity",level:"Intermediate",desc:"View discovered MikroTik/neighbor devices on connected links.",cmd:"/ip neighbor print detail",tip:"Neighbor discovery may be disabled on some interfaces and is not a substitute for IP reachability testing."},
+{title:"Check wireless package interfaces",cat:"Interfaces",level:"Advanced",desc:"Legacy wireless command, only if a wireless interface/package exists.",cmd:"/interface wireless print detail",tip:"RB450Gx4 is a wired router and typically has no built-in Wi-Fi radio. This command may be unavailable if the wireless package is not installed."},
+{title:"Check route to a destination",cat:"Connectivity",level:"Advanced",desc:"Inspect route selection for a destination address.",cmd:"/ip route get [find dst-address=\"0.0.0.0/0\"]",tip:"This example inspects a default-route entry, not a universal route diagnostic. Check /ip route print detail if multiple routes exist."},
+{title:"Check bandwidth-test menu",cat:"Traffic",level:"Advanced",desc:"Show the available bandwidth-test command syntax.",cmd:"/tool bandwidth-test",tip:"Usually requires a reachable bandwidth-test server on another MikroTik. Testing can heavily load a router; avoid running it across production links without permission."},
+{title:"Check system log topics",cat:"Basics",level:"Intermediate",desc:"Review configured logging destinations and topics.",cmd:"/system logging print detail",tip:"Useful when logs do not show the messages you expect."},
+{title:"Inspect IPv6 addresses",cat:"Connectivity",level:"Advanced",desc:"Check IPv6 addresses if IPv6 is enabled.",cmd:"/ipv6 address print detail",tip:"IPv6 menu availability depends on RouterOS packages/configuration. Troubleshoot IPv6 separately from IPv4."},
+{title:"Ping with source address · নির্দিষ্ট source IP দিয়ে",cat:"Connectivity",level:"Intermediate",desc:"Ping from a specific local IP (useful with multiple WANs).",cmd:"/ping 8.8.8.8 src-address=192.168.1.2 count=5",tip:"Replace src-address with an IP that exists on the router. Tests that exact WAN path."},
+{title:"Continuous ping with interval",cat:"Connectivity",level:"Basic",desc:"Ping repeatedly once per second until stopped.",cmd:"/ping 8.8.8.8 interval=1s",tip:"Stop with Ctrl+C. Watch for packet loss and jumps in time."},
+{title:"Ping Cloudflare & domain",cat:"Connectivity",level:"Basic",desc:"Compare IP ping vs domain ping to isolate DNS problems.",cmd:"/ping 1.1.1.1 count=5\n/ping google.com count=5",tip:"IP works but domain fails = DNS problem. Both fail = routing/WAN/firewall."},
+{title:"Ping with size / no-fragment (MTU test)",cat:"Connectivity",level:"Advanced",desc:"Find the largest packet that passes without fragmenting.",cmd:"/ping 8.8.8.8 size=1472 do-not-fragment count=3",tip:"On PPPoE the usable size is usually lower (~1464). Reduce size until replies return to find the real MTU."},
+{title:"Find specific IP address",cat:"Connectivity",level:"Basic",desc:"Filter IP addresses by subnet text.",cmd:"/ip address print where address~\"192.168.1\"",tip:"The ~ operator is a regex-style match, so partial text works."},
+{title:"Show DHCP server config",cat:"Subscribers",level:"Basic",desc:"Check DHCP server, interface, pool and lease time.",cmd:"/ip dhcp-server print detail",tip:"A server flagged invalid or disabled will not hand out addresses."},
+{title:"Show DHCP leases",cat:"Subscribers",level:"Basic",desc:"See which clients have an address and their MACs.",cmd:"/ip dhcp-server lease print detail",tip:"Use to confirm a device got an IP, or to find a MAC for a static lease."},
+{title:"Show PPPoE clients (WAN)",cat:"Subscribers",level:"Basic",desc:"Check whether the router's PPPoE dial-out is connected.",cmd:"/interface pppoe-client print detail",tip:"R flag = running. If not, check the log for authentication or discovery errors, and the physical port."},
+{title:"Monitor PPPoE client",cat:"Subscribers",level:"Intermediate",desc:"Show status, uptime and assigned IP of the dial-out.",cmd:"/interface pppoe-client monitor 0 once",tip:"Use the number or name of your PPPoE client from the print output."},
+{title:"Monitor traffic (ether1)",cat:"Traffic",level:"Basic",desc:"Live rx/tx rate of an interface.",cmd:"/interface monitor-traffic ether1",tip:"Replace ether1 with your interface. Stop with Ctrl+C."},
+{title:"Live CPU / resource monitor",cat:"Traffic",level:"Basic",desc:"Continuously update CPU and memory use.",cmd:"/system resource monitor",tip:"Run during the slowdown. Sustained CPU near 100% points to heavy traffic, queues or firewall load."},
+{title:"Active connections",cat:"Firewall",level:"Intermediate",desc:"List tracked connections.",cmd:"/ip firewall connection print",tip:"Add where src-address=... to narrow it. Large lists can be slow to print; try count-only first."},
+{title:"Simple queues (speed limits)",cat:"Traffic",level:"Intermediate",desc:"Check per-client or per-subnet bandwidth limits.",cmd:"/queue simple print detail",tip:"A wrong max-limit or queue order is a common cause of 'slow internet for one user'."},
+{title:"Torch with filters",cat:"Traffic",level:"Advanced",desc:"See which IP/port is using traffic on the WAN.",cmd:"/tool torch interface=ether1 src-address=0.0.0.0/0 dst-address=0.0.0.0/0 port=any",tip:"Sort by Tx/Rx to spot the heavy talker, then trace the IP in leases or ARP."},
+{title:"Netwatch (monitor host up/down)",cat:"Connectivity",level:"Intermediate",desc:"Show or add watch on a host such as the gateway.",cmd:"/tool netwatch print\n/tool netwatch add host=8.8.8.8 interval=10s comment=\"WAN check\"",tip:"Adding is a change. Status shows up/down over time, good for intermittent outages."},
+{title:"Sniff packets to a file",cat:"Traffic",level:"Advanced",desc:"Capture traffic to a pcap you can open in Wireshark.",cmd:"/tool sniffer set file-name=cap.pcap filter-ip-address=192.168.1.50 filter-interface=ether1\n/tool sniffer start\n/tool sniffer stop",tip:"Stop after a short time; captures fill storage fast and may contain private data."},
+{title:"VLAN interfaces",cat:"Interfaces",level:"Intermediate",desc:"List VLANs, IDs and parent interfaces.",cmd:"/interface vlan print detail",tip:"Check vlan-id and the parent interface/bridge match the upstream switch or OLT."},
+{title:"Interface counters & errors",cat:"Interfaces",level:"Intermediate",desc:"View rx/tx packets, drops and errors.",cmd:"/interface print stats",tip:"Rising rx-error or fcs-error usually means a bad cable, port or duplex mismatch."},
+{title:"Ethernet link speed (quick)",cat:"Interfaces",level:"Basic",desc:"Check negotiated speed and duplex.",cmd:"/interface ethernet monitor ether1 once",tip:"Expect 1Gbps full-duplex on gigabit links. 100Mbps or half-duplex hints at cabling issues."},
+{title:"History of changes (undo)",cat:"Backup",level:"Intermediate",desc:"See recent configuration changes and undo/redo them.",cmd:"/system history print",tip:"Winbox shows this list too, and you can undo or redo an entry there. Test carefully."},
+{title:"Compact export",cat:"Backup",level:"Basic",desc:"Export only non-default settings, a smaller and cleaner file.",cmd:"/export compact file=config-compact",tip:"Best for reading and diffing configs. Saves as config-compact.rsc."},
+{title:"Export without secrets",cat:"Backup",level:"Intermediate",desc:"Hide passwords and keys before you share the file.",cmd:"/export hide-sensitive file=config-safe",tip:"Use this before posting a config for help. Still review the file manually."},
+{title:"Binary backup with password",cat:"Backup",level:"Intermediate",desc:"Create an encrypted backup file.",cmd:"/system backup save name=full-backup password=YourStrongPass",tip:"Binary backups restore best on the same model/RouterOS. Keep the password safe, it cannot be recovered."},
+{title:"Read a file on the router",cat:"Backup",level:"Basic",desc:"Print the contents of an .rsc/.txt export directly in the terminal.",cmd:":put [/file get config-compact.rsc contents]",tip:"Works for text files up to a limited size. For big files download them with Winbox or FTP/SFTP."},
+{title:"Write a text file on the router",cat:"Backup",level:"Intermediate",desc:"Create a note or file with your own contents.",cmd:"/file print file=notes\n/file set notes.txt contents=\"Changed NAT rule 2026-10-25\"",tip:"First command creates notes.txt; second sets its text. Useful for change logs."},
+{title:"Import (apply) an .rsc file",cat:"Backup",level:"Advanced",desc:"Run a script/export file to apply configuration.",cmd:"/import file-name=config-compact.rsc",tip:"This changes the router. Use Safe Mode and a fresh backup first. Do not import onto a different model blindly."},
+{title:"Restore binary backup",cat:"Backup",level:"Advanced",desc:"Restore the router from a .backup file (it reboots).",cmd:"/system backup load name=before-change.backup",tip:"Replaces the whole configuration and reboots. You may lose remote access if IPs differ."},
+{title:"Upload backup to FTP server (fetch)",cat:"Backup",level:"Advanced",desc:"Upload a backup to an FTP server.",cmd:"/tool fetch upload=yes mode=ftp src-path=before-change.backup dst-path=/backups/before-change.backup address=192.168.1.10 user=ftpuser password=ftppass",tip:"Prefer SFTP where supported. Replace address and credentials with your own."},
+{title:"Delete an old backup file",cat:"Backup",level:"Intermediate",desc:"Remove a file from the router storage.",cmd:"/file remove [find name=\"before-change.backup\"]",tip:"Cannot be undone. Download first if unsure."},
+{title:"Check for RouterOS updates",cat:"Basics",level:"Intermediate",desc:"See whether a newer version exists in your channel.",cmd:"/system package update check-for-updates",tip:"Take a backup before upgrading. Install with /system package update install."},
+{title:"Quit terminal session",cat:"Basics",level:"Basic",desc:"Close the current terminal/SSH session.",cmd:"/quit",tip:"Safe to use; it does not reboot the router."},
+{title:"Reboot router",cat:"Basics",level:"Intermediate",desc:"Restart the router.",cmd:"/system reboot",tip:"Asks for confirmation. All traffic stops for about a minute. Do not run remotely at peak time."},
+{title:"Playbook: No internet",cat:"Playbooks",level:"Basic",desc:"Step by step. ইন্টারনেট না থাকলে এই ক্রমে চেক করো।",cmd:"/interface print\n/ip address print\n/ip route print where dst-address=0.0.0.0/0\n/ping 8.8.8.8 count=5\n/ping google.com count=5\n/ip firewall nat print\n/log print",tip:"1 link up? 2 WAN IP? 3 default route active? 4 ping IP. 5 ping domain (DNS). 6 masquerade rule. 7 log. Stop at the first failing step."},
+{title:"Playbook: Router is slow",cat:"Playbooks",level:"Basic",desc:"Router slow বা high CPU হলে।",cmd:"/system resource print\n/system resource monitor\n/tool profile\n/ip firewall connection print count-only\n/tool torch ether1",tip:"Check CPU and memory, which process, connection count, then the top talker with torch."},
+{title:"Playbook: Customer cannot connect (PPPoE)",cat:"Playbooks",level:"Intermediate",desc:"PPPoE user connect না হলে।",cmd:"/ppp active print\n/ppp secret print where name=\"username\"\n/interface pppoe-server server print\n/log print where message~\"username\"",tip:"Replace username. Look for wrong password, disabled secret, profile pool empty, or already-active session."},
+{title:"Playbook: Safe config change",cat:"Playbooks",level:"Basic",desc:"কোনো change করার আগে এই ধাপগুলো।",cmd:"/system backup save name=before-change\n/export compact file=before-change\n# press Ctrl+X for Safe Mode, make changes, press Ctrl+X again to commit",tip:"Backup first, Safe Mode on, change one thing, test, commit. If you lose connection Safe Mode rolls back."},
+{title:"Show DHCP client (WAN via DHCP)",cat:"Subscribers",level:"Basic",desc:"Check if the router got its WAN IP from the ISP.",bn:"ISP থেকে WAN IP পেয়েছে কিনা দেখো।",cmd:"/ip dhcp-client print detail",tip:"Status 'bound' means an address was received. 'searching' means no DHCP reply on that port."},
+{title:"Show user accounts",cat:"Basics",level:"Basic",desc:"List who can log in to the router.",bn:"কারা রাউটারে লগইন করতে পারে তার তালিকা।",cmd:"/user print",tip:"Remove unknown users and use strong passwords."},
+{title:"Check hardware health",cat:"Basics",level:"Intermediate",desc:"Temperature and voltage readings.",bn:"তাপমাত্রা ও ভোল্টেজ দেখো।",cmd:"/system health print",tip:"Not all boards report every sensor. High temperature can cause random reboots."},
+{title:"Check NTP time sync",cat:"Basics",level:"Basic",desc:"See whether the router clock syncs with a time server.",bn:"রাউটারের সময় টাইম সার্ভারের সাথে সিঙ্ক হচ্ছে কিনা।",cmd:"/system ntp client print",tip:"Wrong time makes logs hard to read and breaks certificates."},
+{title:"Only INPUT firewall rules",cat:"Firewall",level:"Intermediate",desc:"Show rules that protect the router itself.",bn:"রাউটারকে নিজেকে রক্ষা করা ফায়ারওয়াল রুল দেখো।",cmd:"/ip firewall filter print where chain=input",tip:"Check that WAN access to Winbox/SSH is blocked."},
+{title:"Find client lease by IP",cat:"Subscribers",level:"Basic",desc:"See the MAC and status of one client.",bn:"একটি ক্লায়েন্টের MAC ও স্ট্যাটাস দেখো।",cmd:"/ip dhcp-server lease print where address=192.168.1.50",tip:"Replace with the client IP."},
+{title:"Add IP address (change)",cat:"Interfaces",level:"Intermediate",desc:"Assign an IP to an interface.",bn:"ইন্টারফেসে IP address বসাও।",cmd:"/ip address add address=192.168.1.1/24 interface=bridge",tip:"Config change. Make a backup first and avoid changing the IP you are connected through."},
+{title:"Add default route (change)",cat:"Connectivity",level:"Intermediate",desc:"Send internet traffic to the ISP gateway.",bn:"ইন্টারনেট ট্রাফিক ISP গেটওয়েতে পাঠাও।",cmd:"/ip route add dst-address=0.0.0.0/0 gateway=192.168.1.1",tip:"Replace the gateway with your real next hop."},
+{title:"Add masquerade NAT (change)",cat:"Firewall",level:"Intermediate",desc:"Let LAN devices share the WAN connection.",bn:"LAN ডিভাইসগুলো একটি WAN লাইন শেয়ার করবে।",cmd:"/ip firewall nat add chain=srcnat out-interface=ether1 action=masquerade",tip:"Replace ether1 with your WAN interface. Without this, LAN clients usually have no internet."},
+{title:"Set DNS servers (change)",cat:"Connectivity",level:"Intermediate",desc:"Choose the DNS servers the router uses.",bn:"রাউটার কোন DNS ব্যবহার করবে ঠিক করো।",cmd:"/ip dns set servers=8.8.8.8,1.1.1.1 allow-remote-requests=yes",tip:"Block DNS port 53 from the WAN in the firewall if you allow remote requests."},
+{title:"Make DHCP lease static",cat:"Subscribers",level:"Intermediate",desc:"Give a device a fixed IP from DHCP.",bn:"ডিভাইসকে DHCP থেকে স্থায়ী IP দাও।",cmd:"/ip dhcp-server lease make-static numbers=0",tip:"Use the number from the lease print output."},
+{title:"Disable / enable a port",cat:"Interfaces",level:"Intermediate",desc:"Turn a port off and on to reset a link.",bn:"পোর্ট বন্ধ করে আবার চালু করে লিংক রিসেট করো।",cmd:"/interface disable ether2\n/interface enable ether2",tip:"Never disable the port you are managing the router through."},
+{title:"Clear one client's connections",cat:"Firewall",level:"Advanced",desc:"Drop tracked connections of a single IP.",bn:"একটি IP এর সব ট্র্যাক করা কানেকশন মুছো।",cmd:'/ip firewall connection remove [find where src-address~"192.168.1.50"]',tip:"Useful after changing a rule so old sessions stop. Do not clear all connections on a busy router."},
+{title:"Block an IP (address list)",cat:"Firewall",level:"Intermediate",desc:"Add an IP to a list used by a drop rule.",bn:"একটি IP কে ব্লক লিস্টে যোগ করো।",cmd:"/ip firewall address-list add list=blocked address=1.2.3.4",tip:"Only works if a filter rule drops traffic from this list."},
+{title:"Restrict Winbox to LAN",cat:"Firewall",level:"Advanced",desc:"Allow Winbox only from your LAN range.",bn:"শুধু LAN থেকে Winbox অ্যাক্সেস দাও।",cmd:"/ip service set winbox address=192.168.1.0/24",tip:"You can lock yourself out if your IP is outside this range. Use Safe Mode."},
+{title:"Rename router",cat:"Basics",level:"Basic",desc:"Set the router identity name.",bn:"রাউটারের নাম বদলাও।",cmd:"/system identity set name=MainRouter",tip:"Helps you recognise which router you are on."},
+{title:"Reset configuration (DANGER)",cat:"Backup",level:"Advanced",desc:"Wipe all settings and start empty.",bn:"সব কনফিগ মুছে ফ্যাক্টরি অবস্থায় যাও (বিপজ্জনক)।",cmd:"/system reset-configuration no-defaults=yes skip-backup=yes",tip:"You will lose remote access and all settings. Only run with a verified backup and physical access."}
+
+];
+const cats = {All:"All commands",Basics:"System & basics",Connectivity:"Ping & routing",Interfaces:"Interfaces & VLAN",Subscribers:"DHCP & PPPoE",Firewall:"Firewall & NAT",Traffic:"Traffic & queues",Backup:"Backup & recovery",Playbooks:"Playbooks (step by step)"};
+const D=[
+['/ping','Sends test packets (ICMP) to check if a host is reachable.','টেস্ট প্যাকেট (ICMP) পাঠিয়ে দেখে হোস্টে পৌঁছানো যায় কিনা।'],
+['count=','How many packets to send.','কতগুলো প্যাকেট পাঠানো হবে।'],
+['interval=','Delay between each ping.','দুটি ping এর মধ্যে বিরতি।'],
+['src-address=','Send from this local IP (tests a specific WAN/path).','এই লোকাল IP থেকে পাঠানো হবে (নির্দিষ্ট WAN/পথ টেস্ট)।'],
+['do-not-fragment','Packet must not be split; used for MTU testing.','প্যাকেট ভাঙা যাবে না; MTU টেস্টে লাগে।'],
+['size=','Packet size in bytes.','প্যাকেটের সাইজ (বাইট)।'],
+['/tool traceroute','Shows every router hop on the way to the destination.','গন্তব্য পর্যন্ত প্রতিটি রাউটার হপ দেখায়।'],
+[':resolve','Asks DNS for the IP of a name.','DNS থেকে নামের IP জানতে চায়।'],
+[':put','Prints the result in the terminal.','ফলাফল টার্মিনালে দেখায়।'],
+['print','Lists items (read-only, changes nothing).','তালিকা দেখায় (শুধু দেখা, কিছু বদলায় না)।'],
+['detail','Shows all fields of each item.','প্রতিটি আইটেমের সব তথ্য দেখায়।'],
+['stats','Shows counters (packets/bytes/errors).','কাউন্টার দেখায় (প্যাকেট/বাইট/এরর)।'],
+['where','Filters the list by a condition.','শর্ত দিয়ে তালিকা ফিল্টার করে।'],
+['~','Partial text match, not exact.','আংশিক মিল খোঁজে, হুবহু নয়।'],
+['count-only','Shows only the number of entries.','শুধু মোট সংখ্যা দেখায়।'],
+['follow','Keeps showing new lines live. Stop with Ctrl+C.','নতুন লাইন লাইভ দেখায়। Ctrl+C দিয়ে থামাও।'],
+['/log print','Shows the router log (errors, logins, link up/down).','রাউটারের লগ দেখায় (এরর, লগইন, লিংক আপ/ডাউন)।'],
+['/ip address','IP addresses assigned to interfaces.','ইন্টারফেসে দেওয়া IP address।'],
+['/ip route','Routing table: where packets are sent.','রাউটিং টেবিল: প্যাকেট কোন পথে যাবে।'],
+['dst-address=0.0.0.0/0','The default route (path to the internet).','ডিফল্ট রুট (ইন্টারনেটে যাওয়ার পথ)।'],
+['/ip arp','Maps IP addresses to MAC addresses on the LAN.','LAN এ IP এর সাথে MAC এর মিল দেখায়।'],
+['/ip dns','DNS server settings and cache.','DNS সার্ভার সেটিং ও ক্যাশ।'],
+['/ip dhcp-server','DHCP: automatically gives IPs to clients.','DHCP: ক্লায়েন্টকে স্বয়ংক্রিয়ভাবে IP দেয়।'],
+['/ip pool','Ranges of IPs handed out to clients.','ক্লায়েন্টদের দেওয়ার IP রেঞ্জ।'],
+['/ip firewall nat','NAT rules, e.g. masquerade to share internet.','NAT রুল, যেমন masquerade দিয়ে ইন্টারনেট শেয়ার।'],
+['/ip firewall filter','Firewall rules that allow or block traffic.','ফায়ারওয়াল রুল: ট্রাফিক অনুমতি বা ব্লক।'],
+['/ip firewall connection','Connections currently tracked by the router.','রাউটার যে কানেকশনগুলো ট্র্যাক করছে।'],
+['/ip firewall mangle','Marks packets/routes for policy routing and queues.','policy routing ও queue এর জন্য প্যাকেট মার্ক করে।'],
+['/ip firewall address-list','Named IP lists used by firewall rules.','ফায়ারওয়াল রুলে ব্যবহৃত IP তালিকা।'],
+['/ip service','Management services (Winbox, SSH, API) and ports.','ম্যানেজমেন্ট সার্ভিস (Winbox, SSH, API) ও পোর্ট।'],
+['/ip neighbor','Nearby MikroTik/discovery devices.','কাছের MikroTik/ডিভাইস দেখায়।'],
+['/interface pppoe-client','PPPoE dial-out to your ISP (WAN login).','ISP তে PPPoE ডায়াল (WAN লগইন)।'],
+['/interface pppoe-server','PPPoE server that customers connect to.','PPPoE সার্ভার, যেখানে কাস্টমার কানেক্ট করে।'],
+['/ppp active','Currently connected PPP users.','এখন কানেক্টেড PPP ইউজার।'],
+['/ppp secret','PPP usernames and passwords (sensitive).','PPP ইউজারনেম/পাসওয়ার্ড (সংবেদনশীল)।'],
+['/ppp profile','Speed limit and address settings for PPP users.','PPP ইউজারের স্পিড ও IP সেটিং।'],
+['/interface monitor-traffic','Live upload/download rate of an interface.','ইন্টারফেসের লাইভ আপলোড/ডাউনলোড রেট।'],
+['/interface ethernet','Physical port info: speed, duplex, link.','ফিজিক্যাল পোর্টের স্পিড, ডুপ্লেক্স, লিংক।'],
+['/interface vlan','VLAN interfaces and their IDs.','VLAN ইন্টারফেস ও ID।'],
+['/interface bridge','Bridge (switch-like) settings and learned MACs.','ব্রিজ (সুইচের মতো) সেটিং ও শেখা MAC।'],
+['/interface print','All interfaces and their status flags (R = running).','সব ইন্টারফেস ও স্ট্যাটাস (R = চালু)।'],
+['/interface wireless','Wi-Fi interfaces (only if installed).','Wi-Fi ইন্টারফেস (থাকলে)।'],
+['/system resource','CPU, memory, uptime and disk.','CPU, মেমোরি, আপটাইম ও ডিস্ক।'],
+['/system package','Installed packages and RouterOS version.','ইনস্টল করা প্যাকেজ ও RouterOS ভার্সন।'],
+['/system identity','Router name.','রাউটারের নাম।'],
+['/system clock','Date and time of the router.','রাউটারের তারিখ ও সময়।'],
+['/system routerboard','Hardware model and firmware.','হার্ডওয়্যার মডেল ও ফার্মওয়্যার।'],
+['/system scheduler','Tasks that run automatically on a schedule.','নির্দিষ্ট সময়ে স্বয়ংক্রিয় টাস্ক।'],
+['/system script','Saved RouterOS scripts.','সেভ করা RouterOS স্ক্রিপ্ট।'],
+['/system logging','Which log topics are recorded and where.','কোন লগ কোথায় সেভ হবে।'],
+['/system history','Recent config changes that can be undone.','সাম্প্রতিক কনফিগ পরিবর্তন, যা undo করা যায়।'],
+['/system reboot','Restarts the router.','রাউটার রিস্টার্ট করে।'],
+['/system backup save','Saves a binary backup file (.backup).','বাইনারি ব্যাকআপ ফাইল (.backup) সেভ করে।'],
+['/system backup load','Restores a .backup file and reboots.','.backup ফাইল রিস্টোর করে ও রিবুট হয়।'],
+['/system package update','Checks or installs RouterOS updates.','RouterOS আপডেট চেক/ইনস্টল করে।'],
+['/export','Writes the config as readable text commands.','কনফিগ পড়ার মতো টেক্সট কমান্ড হিসেবে দেখায়।'],
+['compact','Only settings that differ from default.','শুধু ডিফল্ট থেকে বদলানো সেটিং।'],
+['hide-sensitive','Hides passwords/keys, safer to share.','পাসওয়ার্ড/কী লুকায়, শেয়ারের জন্য নিরাপদ।'],
+['file=','Save output to a file on the router.','আউটপুট রাউটারের ফাইলে সেভ করে।'],
+['name=','Name of the file or item.','ফাইল বা আইটেমের নাম।'],
+['password=','Protects the backup with a password.','ব্যাকআপ পাসওয়ার্ড দিয়ে সুরক্ষিত করে।'],
+['/file print','Lists files stored on the router.','রাউটারে থাকা ফাইলের তালিকা।'],
+['/file get','Reads a property of a file, e.g. its contents.','ফাইলের তথ্য/কনটেন্ট পড়ে।'],
+['/file set','Changes a file, e.g. writes its contents.','ফাইল বদলায়, যেমন কনটেন্ট লেখে।'],
+['/file remove','Deletes a file. Cannot be undone.','ফাইল মুছে ফেলে। ফেরানো যায় না।'],
+['[find','Finds item(s) matching a condition and returns their IDs.','শর্ত মিলিয়ে আইটেম খুঁজে তার ID দেয়।'],
+['/import','Runs an .rsc file and applies its settings.','.rsc ফাইল রান করে সেটিং প্রয়োগ করে।'],
+['/tool fetch','Downloads or uploads files (FTP/HTTP).','ফাইল ডাউনলোড/আপলোড করে (FTP/HTTP)।'],
+['/tool torch','Live view of which IP/port uses traffic.','কোন IP/পোর্ট ট্রাফিক ব্যবহার করছে লাইভ দেখায়।'],
+['/tool profile','Shows which process uses CPU.','কোন প্রসেস CPU ব্যবহার করছে দেখায়।'],
+['/tool netwatch','Watches if a host is up or down.','হোস্ট আপ না ডাউন তা নজরে রাখে।'],
+['/tool sniffer','Captures packets to a file (Wireshark).','প্যাকেট ক্যাপচার করে ফাইলে রাখে (Wireshark)।'],
+['/tool bandwidth-test','Speed test between two MikroTik routers.','দুটি MikroTik এর মধ্যে স্পিড টেস্ট।'],
+['/queue simple','Bandwidth limits for clients.','ক্লায়েন্টের স্পিড লিমিট।'],
+['/user active','Who is logged into the router now.','এখন কে রাউটারে লগইন করে আছে।'],
+['/ipv6 address','IPv6 addresses.','IPv6 address।'],
+['/ip dhcp-client','DHCP client: router gets its WAN IP automatically from the ISP.','DHCP ক্লায়েন্ট: ISP থেকে WAN IP স্বয়ংক্রিয়ভাবে পায়।'],
+['/user print','Router login accounts.','রাউটারের লগইন একাউন্ট।'],
+['/system health','Temperature and voltage (if the board supports it).','তাপমাত্রা ও ভোল্টেজ (বোর্ড সাপোর্ট করলে)।'],
+['/system ntp client','Automatic time sync with an internet time server.','ইন্টারনেট টাইম সার্ভার থেকে স্বয়ংক্রিয় সময় সিঙ্ক।'],
+['/system reset-configuration','Wipes the whole configuration and reboots.','পুরো কনফিগ মুছে রিবুট করে।'],
+['no-defaults=yes','Do not load the default config after reset (router becomes empty).','রিসেটের পর ডিফল্ট কনফিগ লোড হবে না (রাউটার খালি)।'],
+['skip-backup=yes','Do not make an automatic backup first.','আগে অটো ব্যাকআপ নেবে না।'],
+['make-static','Turns a dynamic DHCP lease into a fixed (static) one.','ডাইনামিক DHCP লিজকে স্থায়ী (static) করে।'],
+[' add ','Creates a new item. This CHANGES the config.','নতুন আইটেম তৈরি করে। এটি কনফিগ বদলায়।'],
+[' set ','Changes values of an existing item. This CHANGES the config.','বিদ্যমান আইটেমের মান বদলায়। এটি কনফিগ বদলায়।'],
+[' remove ','Deletes the matched item(s).','মিলে যাওয়া আইটেম মুছে দেয়।'],
+[' disable ','Turns an item off (port goes down).','আইটেম বন্ধ করে (পোর্ট ডাউন হয়)।'],
+[' enable ','Turns an item back on.','আইটেম আবার চালু করে।'],
+[' address=','The IP address (or IP/prefix) to use or match.','ব্যবহার বা মেলানোর IP address (বা IP/prefix)।'],
+[' interface=','The interface this applies to.','কোন ইন্টারফেসে প্রযোজ্য।'],
+['gateway=','Next-hop router that traffic is sent to.','যে রাউটারে ট্রাফিক পাঠানো হবে (গেটওয়ে)।'],
+['servers=','DNS servers the router will ask.','যে DNS সার্ভারে রাউটার জিজ্ঞেস করবে।'],
+['allow-remote-requests=yes','Lets LAN clients use the router as their DNS. Block it from WAN.','LAN ক্লায়েন্ট রাউটারকে DNS হিসেবে ব্যবহার করতে পারবে। WAN থেকে ব্লক করো।'],
+['chain=input','Traffic going TO the router itself.','যে ট্রাফিক রাউটারের নিজের দিকে আসছে।'],
+['chain=srcnat','Source NAT: rewrites the sender address of outgoing traffic.','Source NAT: বাইরে যাওয়া ট্রাফিকের sender address বদলায়।'],
+['out-interface=','Match traffic leaving through this interface (usually WAN).','যে ইন্টারফেস দিয়ে ট্রাফিক বের হচ্ছে (সাধারণত WAN)।'],
+['action=masquerade','Replaces LAN IPs with the WAN IP so many devices share one internet line.','LAN IP কে WAN IP দিয়ে বদলায়, ফলে সব ডিভাইস একটি লাইন শেয়ার করে।'],
+['list=','Name of the address list.','Address list এর নাম।'],
+['/quit','Closes the terminal session.','টার্মিনাল সেশন বন্ধ করে।'],
+['Ctrl+X','Toggles Safe Mode: changes roll back if you disconnect.','Safe Mode চালু/বন্ধ: সংযোগ কেটে গেলে পরিবর্তন ফিরে যায়।']
+];
+function explain(cmd){
+ const L='both';
+ const f=D.filter(d=>cmd.includes(d[0])).sort((a,b)=>cmd.indexOf(a[0])-cmd.indexOf(b[0]));
+ if(!f.length)return '';
+ const t=d=>(L!=='bn'?esc(d[1]):'')+(L==='both'?'<br>':'')+(L!=='en'?'<span class="bn">'+esc(d[2])+'</span>':'');
+ return '<div class="explain"><strong>'+(L==='bn'?'কমান্ড ব্যাখ্যা':L==='en'?'Command breakdown':'Command breakdown · কমান্ড ব্যাখ্যা')+'</strong><ul>'+f.map(d=>'<li><code>'+esc(d[0])+'</code> '+t(d)+'</li>').join('')+'</ul></div>';
+}
+let active="All";
+const grid=document.getElementById("commands"), search=document.getElementById("search"), level=document.getElementById("level"), sort=document.getElementById("sort");
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function render(){
+ let q=search.value.trim().toLowerCase();
+ let list=data.filter(x=>(active==="All"||x.cat===active)&&(level.value==="All"||x.level===level.value)&&(!q||(x.title+" "+x.desc+" "+x.cmd+" "+x.cat+" "+x.tip).toLowerCase().includes(q)));
+ if(sort.value==="az")list.sort((a,b)=>a.title.localeCompare(b.title));
+ document.getElementById("sectionTitle").textContent=cats[active]||"All commands";
+ document.getElementById("count").textContent=`${list.length} result${list.length===1?"":"s"}`;
+ document.getElementById("statTotal").textContent=data.length;
+ grid.innerHTML=list.length?list.map((x,i)=>`<article class="command">
+ <div class="cmd-top"><h4 class="cmd-title">${esc(x.title)}</h4><span class="category-pill">${esc(x.cat)}</span></div>
+ <p class="cmd-desc">${esc(x.desc)}</p>
+ <div class="codebox"><pre>${esc(x.cmd)}</pre><button class="copy" data-copy="${i}" aria-label="Copy command">Copy</button></div>
+ ${x.bn?'<p class="cmd-bn">'+esc(x.bn)+'</p>':''}${explain(x.cmd)}
+ <div class="cmd-foot"><span class="tag">Level: ${esc(x.level)}</span><button class="details" data-detail="${i}">Details +</button></div>
+ <div class="extra" id="extra-${i}"><strong>When to use:</strong> ${esc(x.tip)}<br><strong>Reminder:</strong> Confirm interface names, IP addresses and RouterOS version before running.</div>
+ </article>`).join(""):`<div class="empty">No commands found. Try another keyword or category.</div>`;
+ // Index maps the currently rendered list, used by buttons
+ grid.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>copyText(list[Number(b.dataset.copy)].cmd,b)));
+ grid.querySelectorAll("[data-detail]").forEach(b=>b.addEventListener("click",()=>{const e=document.getElementById("extra-"+b.dataset.detail);e.classList.toggle("open");b.textContent=e.classList.contains("open")?"Details −":"Details +"}));
+}
+async function copyText(txt,btn){try{await navigator.clipboard.writeText(txt)}catch(e){const t=document.createElement("textarea");t.value=txt;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove()}btn.textContent="Copied";setTimeout(()=>btn.textContent="Copy",1200);const toast=document.getElementById("toast");toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1500)}
+document.getElementById("nav").addEventListener("click",e=>{const b=e.target.closest("button[data-cat]");if(!b)return;active=b.dataset.cat;document.querySelectorAll("#nav button").forEach(n=>n.classList.toggle("active",n===b));render()});
+search.addEventListener("input",render);level.addEventListener("change",render);sort.addEventListener("change",render);
+document.getElementById("exportBtn").addEventListener("click",()=>{const text=data.map(x=>`## ${x.title} [${x.cat} / ${x.level}]\n${x.desc}\n${x.cmd}\nTip: ${x.tip}\n`).join("\n");const blob=new Blob([text],{type:"text/plain;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="mikrotik-command-reference.txt";a.click();URL.revokeObjectURL(a.href)});
+render();
+
+/* keep the sticky sidebar just below the portfolio bar, whatever height it wraps to */
+(function(){var b=document.querySelector('.pf-bar');if(!b)return;function set(){document.documentElement.style.setProperty('--bar',b.offsetHeight+'px')}set();addEventListener('resize',set);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(set)})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+@font-face{font-family:Editorial;src:url('../assets/fonts/cormorant-garamond-500-normal.ttf');font-weight:500}
+@font-face{font-family:Editorial;src:url('../assets/fonts/cormorant-garamond-600-normal.ttf');font-weight:600}
+@font-face{font-family:Interface;src:url('../assets/fonts/dm-sans-400-normal.ttf')}
+@font-face{font-family:Interface;src:url('../assets/fonts/dm-sans-600-normal.ttf');font-weight:600}
+:root{--pf-bg:#0a121a;--pf-surf:#0f1a23;--pf-ink:#f0ece3;--pf-mu:#8ea3ad;--pf-line:#233039;--pf-ac:#35c8f0;--pf-on:#06222c;--pf-warm:#f0a35e;--pf-ok:#6fe0a8;--pf-vio:#b39bff;--pf-gold:#e6c25a;--pf-err:#ff8f8f;--pf-hl:#12303c;--pf-wash:rgba(53,200,240,.12)}
+:root[data-pf=graphite]{--pf-bg:#1c1928;--pf-surf:#2b243d;--pf-ink:#f4efff;--pf-mu:#c0b7d3;--pf-line:#57516c;--pf-ac:#93e5db;--pf-on:#14262a;--pf-hl:#3a3150;--pf-wash:rgba(153,106,218,.18)}
+:root[data-pf=mono]{--pf-bg:#ffffff;--pf-surf:#f3f3f3;--pf-ink:#000000;--pf-mu:#5a5a5a;--pf-line:#c4c4c4;--pf-ac:#000000;--pf-on:#ffffff;--pf-warm:#808080;--pf-ok:#3a3a3a;--pf-vio:#999999;--pf-gold:#555555;--pf-err:#000000;--pf-hl:#e6e6e6;--pf-wash:rgba(0,0,0,.05)}
+:root[data-pf=neon]{--pf-bg:#07071a;--pf-surf:#101030;--pf-ink:#e8fffb;--pf-mu:#8fb3d9;--pf-line:#1b4a8a;--pf-ac:#00ffd5;--pf-on:#04141a;--pf-warm:#ff9a3d;--pf-hl:#2a0a40;--pf-wash:rgba(255,0,200,.16)}
+:root:root:root{color-scheme:dark;--bg:var(--pf-bg);--surface:var(--pf-surf);--card:var(--pf-surf);--sf:var(--pf-surf);--ink:var(--pf-ink);--tx:var(--pf-ink);--muted:var(--pf-mu);--mu:var(--pf-mu);--line:var(--pf-line);--bd:var(--pf-line);--ln:var(--pf-line);--accent:var(--pf-ac);--ac:var(--pf-ac);--accent-ink:var(--pf-on);--acx:var(--pf-on);--hl:var(--pf-hl);--err:var(--pf-err);--er:var(--pf-err);--net:var(--pf-ac);--host:var(--pf-warm);--wan:var(--pf-warm);--w2:var(--pf-gold);--l1:var(--pf-ok);--l2:var(--pf-vio);--c-wan:var(--pf-warm);--c-l1:var(--pf-ac);--c-l2:var(--pf-ok);--c-l3:var(--pf-vio);--c-l4:var(--pf-gold);--pink:#e58ac0}
+body{font-family:Interface,system-ui,"Noto Sans Bengali",sans-serif!important;background:radial-gradient(ellipse at 80% 0,var(--pf-wash),transparent 60%) fixed,var(--pf-bg)!important;color:var(--pf-ink)}
+h1,h2{font-family:Editorial,Georgia,serif!important;font-weight:500!important;text-shadow:none!important;color:var(--pf-ink)!important;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,5vw,2.8rem)!important;line-height:1.05}
+h2{color:var(--pf-ac)!important}
+input,select,textarea{background:var(--pf-bg)!important;color:var(--pf-ink)!important;border-color:var(--pf-line)!important}
+input:focus,select:focus,textarea:focus{border-color:var(--pf-ac)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--pf-ac) 30%,transparent)!important}
+section,.card,.bin,.gw{border-radius:8px!important;box-shadow:none!important}
+#th{display:none!important}
+.pf-bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px clamp(16px,4vw,40px);background:color-mix(in srgb,var(--pf-bg) 92%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--pf-line);font:14px/1.3 Interface,system-ui,sans-serif}
+.pf-bar a{color:var(--pf-ink);text-decoration:none}
+.pf-bar a:hover{color:var(--pf-ac)}
+.pf-home{font-weight:600;letter-spacing:-.04em;font-size:18px}.pf-home span{font-weight:400;color:var(--pf-mu)}
+.pf-links{display:flex;gap:6px 18px;flex-wrap:wrap}
+.pf-links a{color:var(--pf-mu);padding:4px 0;border-bottom:2px solid transparent}
+.pf-links a[aria-current=page]{color:var(--pf-ac);border-bottom-color:var(--pf-ac)}
+h2{font-size:1.35rem!important}
+button,.seg span,.seg label{box-shadow:none!important;text-shadow:none!important}
+
+:root[data-pf=neon] h1,:root[data-pf=neon] h2{text-shadow:0 0 14px #00e5ff99,0 0 30px #ff00c855!important}
+:root[data-pf=neon] section,:root[data-pf=neon] .card,:root[data-pf=neon] .bin,:root[data-pf=neon] .gw{box-shadow:0 0 14px #00e5ff44,inset 0 0 10px #ff00ff22!important}
+:root[data-pf=neon] .pf-bar{border-bottom-color:#00e5ff;box-shadow:0 0 16px #00e5ff44}
+:root[data-pf=neon] .pf-links a[aria-current=page]{text-shadow:0 0 8px var(--pf-ac)}
+
+/* Black & white: palette above + grayscale filter so hard-coded colours in each tool also go B&W */
+html{transition:filter .6s ease}
+:root[data-pf=mono]{filter:grayscale(1)}
+:root[data-pf=mono]:root:root{color-scheme:light}
+:root[data-pf=mono] .pf-bar{background:color-mix(in srgb,#fff 94%,transparent)}

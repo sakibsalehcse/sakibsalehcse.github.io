@@ -1,0 +1,1 @@
+try { const saved = localStorage.getItem('sakib-theme'); document.documentElement.dataset.theme = ['graphite', 'neon', 'mono'].includes(saved) ? saved : saved === 'light' ? 'graphite' : 'dark'; } catch (_) {}

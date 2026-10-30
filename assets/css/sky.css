@@ -1,0 +1,191 @@
+/* Sky bar and panel. Uses the site's theme variables, so it follows Dark, Graphite and Neon. */
+:root{--sun:#f0a35e;--moon:#b39bff;--yr:#6fe0a8}
+.hero{min-height:calc(100svh - 135px)}
+.skybar{position:relative;z-index:5;border-bottom:1px solid var(--line);background:linear-gradient(90deg,color-mix(in srgb,var(--tint,#35c8f0) 16%,var(--surface)),var(--surface) 60%);transition:background 1s}
+.skybar .sb{display:flex;align-items:center;gap:22px;min-height:48px;padding-block:6px;font-size:13px}
+.skybar .sb-time{display:flex;align-items:baseline;gap:7px;white-space:nowrap}
+.skybar .sb-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);align-self:center;animation:skping 2.4s infinite}
+@keyframes skping{0%{box-shadow:0 0 0 0 var(--accent)}70%,100%{box-shadow:0 0 0 9px transparent}}
+.skybar .sb-time b{font:500 25px/1 Editorial,Georgia,serif;font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.01em}
+.skybar .sb-time small{font-size:11px;color:var(--accent);letter-spacing:.06em}
+.skybar .sb-where{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-left:6px}
+.skybar .sb-date{color:var(--muted);white-space:nowrap}
+.skybar .sb-date i{color:var(--accent);font-style:normal;margin:0 6px}
+.skybar .sb-chips{display:flex;gap:8px;margin-left:auto;min-width:0;overflow-x:auto;scrollbar-width:none}
+.skybar .sb-chips::-webkit-scrollbar{display:none}
+.skybar .sb-chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);padding:4px 11px;background:color-mix(in srgb,var(--bg) 40%,transparent);white-space:nowrap;font-size:12px}
+.skybar .sb-chip svg{width:16px;height:16px;flex:none;color:var(--c)}
+.skybar .sb-toggle{flex:none;background:transparent;border:1px solid var(--line);padding:6px 13px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;min-height:36px;white-space:nowrap}
+.skybar .sb-toggle em{font-style:normal;color:var(--accent);margin-left:6px;font-size:10px}
+.skybar .sb-toggle:hover{border-color:var(--accent)}
+.skypanel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .55s cubic-bezier(.2,.7,.2,1);border-top:0}
+.skypanel.open{grid-template-rows:1fr}
+.skypanel>.sp-in{overflow:hidden;min-height:0}
+.skypanel:not(.open)>.sp-in{visibility:hidden;transition:visibility 0s .55s}
+.skybar .sp-pad{padding-block:30px 36px}
+.skybar .sk-label{font-size:12px;letter-spacing:.15em;color:var(--accent);margin:0 0 12px;text-transform:uppercase}
+.skybar .sp-top{display:grid;grid-template-columns:minmax(220px,300px) 1fr minmax(180px,220px);gap:40px;align-items:center;padding-bottom:30px;border-bottom:1px solid var(--line)}
+.skybar #arc{width:100%;height:auto;display:block;border:1px solid var(--line);background:var(--surface)}
+.skybar #arc text{fill:var(--muted);font-size:11px;font-family:Interface,Arial,sans-serif}
+.skybar .sp-en{font:500 clamp(22px,2.4vw,30px)/1.2 Editorial,Georgia,serif;margin:0}
+.skybar .sp-bn{color:var(--muted);margin:8px 0 18px;font-size:14px;line-height:1.6}
+.skybar .daybar{position:relative;height:8px;margin:4px 0 6px;opacity:.95}
+.skybar #nowMark{position:absolute;top:-5px;width:3px;height:18px;background:var(--ink);transform:translateX(-1.5px);box-shadow:0 0 0 3px var(--bg);transition:left 1s linear}
+.skybar .dl{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}
+.skybar .sp-ctl{display:flex;flex-direction:column;gap:12px}
+.skybar select,.skybar input{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);padding:10px 12px;min-height:44px;min-width:0;border-radius:0}
+.skybar select:hover,.skybar input:hover{border-color:var(--accent)}
+.skybar .btn{font:inherit;font-size:13px;background:var(--ink);color:var(--bg);border:0;padding:11px 16px;min-height:44px;white-space:nowrap;letter-spacing:.02em}
+.skybar .btn:hover{background:var(--accent);color:var(--bg)}
+.skybar .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.skybar .btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.skybar .btn.danger{background:#e25555;color:#fff}
+.skybar .btn.sm{padding:7px 12px;min-height:36px;font-size:12px}
+.skybar .alarm{margin-top:24px;padding:18px;border:1px dashed var(--line);display:grid;grid-template-columns:auto auto 1fr auto auto;gap:10px;background:var(--surface)}
+.skybar .alarm[hidden]{display:none}
+.skybar .msg{grid-column:1/-1;color:var(--muted);margin:0;font-size:13px}
+.skybar #alist{grid-column:1/-1}
+.skybar .arow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.skybar .ainfo{flex:1;min-width:150px}.skybar .ainfo b{display:block;font:500 24px/1.2 Editorial,Georgia,serif}.skybar .ainfo small{color:var(--muted)}
+.skybar .groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:30px;border:1px solid var(--line);background:var(--surface)}
+.skybar .grp{padding:26px 26px 14px;border-left:1px solid var(--line);position:relative;min-width:0}
+.skybar .grp:first-child{border-left:0}
+.skybar .grp:before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--c)}
+.skybar .gh{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.skybar .gk{font-size:12px;letter-spacing:.15em;color:var(--c);display:block}
+.skybar .gn{font:500 36px/1.1 Editorial,Georgia,serif;display:block;margin-top:8px}
+.skybar .gn small{font:400 14px Interface,sans-serif;color:var(--muted);margin-left:10px}
+.skybar .gi{width:44px;height:44px;border:1px solid var(--line);display:grid;place-items:center;color:var(--c);flex:none}
+.skybar .gi svg{width:28px;height:28px}
+.skybar .row{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:11px 0;border-top:1px solid var(--line)}
+.skybar .l span{display:block;font-size:14px;line-height:1.3}
+.skybar .l small{display:block;font-size:12px;color:var(--c);line-height:1.4}
+.skybar .rt{text-align:right}
+.skybar .rt b{display:block;font:500 22px/1.15 Editorial,Georgia,serif;font-variant-numeric:lining-nums}
+.skybar .rt small{display:block;font-size:12px;color:var(--muted);line-height:1.4}
+.skybar .yb{display:block;height:3px;background:var(--line);margin-top:7px;min-width:96px}
+.skybar .yb i{display:block;height:100%;background:var(--c)}
+.skybar .groups:not(.open) .x{display:none}
+.skybar .groups.open .x{animation:skfade .4s both}
+@keyframes skfade{from{opacity:0;transform:translateY(-5px)}}
+.skybar .more{display:block;margin:22px auto 0;background:transparent;border:1px solid var(--line);padding:12px 24px;font-size:13px;letter-spacing:.04em;min-height:44px}
+.skybar .more:hover{border-color:var(--accent)}
+.skybar .more em{font-style:normal;color:var(--accent);margin-left:10px;font-size:10px}
+.skybar .sk-note{text-align:center;color:var(--muted);font-size:12px;margin:18px 0 0}
+.ov{position:fixed;inset:0;background:rgba(5,9,13,.72);display:grid;place-items:center;z-index:60;padding:16px}
+.dlg{background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:26px;max-width:380px;width:100%}
+.dlg h3{margin:0 0 8px;font-size:28px}.dlg p{margin:0 0 20px;color:var(--muted)}
+.dlg .rowb{display:flex;gap:10px;justify-content:flex-end}
+.dlg .btn{font:inherit;font-size:13px;background:var(--ink);color:var(--bg);border:0;padding:10px 16px;min-height:44px}
+.dlg .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.dlg .btn.danger{background:#e25555;color:#fff}
+@media(max-width:1000px){.skybar .sb{gap:14px}.skybar .sb-date{display:none}.skybar .sp-top{grid-template-columns:minmax(200px,260px) 1fr;gap:28px}.skybar .sp-ctl{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}.skybar .sp-ctl .sk-label{width:100%;margin:0}.skybar .groups{grid-template-columns:1fr}.skybar .grp{border-left:0;border-top:1px solid var(--line)}.skybar .grp:first-child{border-top:0}}
+@media(max-width:780px){.hero{min-height:0}.skybar .sb{flex-wrap:wrap;gap:8px 12px}.skybar .sb-chips{order:3;width:100%;margin-left:0;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.skybar .sb-toggle{margin-left:auto}.skybar .sb-where{display:none}.skybar .sp-top{grid-template-columns:1fr;gap:22px}.skybar .alarm{grid-template-columns:1fr}.skybar .grp{padding:22px 18px 10px}}
+@media(prefers-reduced-motion:reduce){.skybar .sb-dot,.skybar .groups.open .x{animation:none}.skypanel,.skybar #nowMark{transition:none!important}}
+
+/* Sky details button sits on its own row below the clock and chips */
+.skybar .sb{flex-wrap:wrap;row-gap:8px}
+.skybar .sb-chips{margin-left:auto}
+.skybar .sb-toggle{order:4;flex:0 0 100%;width:100%;display:flex;justify-content:center;align-items:center;margin:0 0 4px}
+
+/* Weather effects inside the sun arc */
+.skybar .sp-sky{min-width:0}
+.skybar .sp-wx{margin:10px 0 8px;font-size:13px;line-height:1.5;color:var(--muted)}
+.skybar .wx-pick{display:flex;flex-wrap:wrap;gap:6px}
+.skybar .wx-pick button{background:transparent;border:1px solid var(--line);padding:5px 10px;font-size:12px;min-height:34px;white-space:nowrap}
+.skybar .wx-pick button:hover{border-color:var(--accent)}
+.skybar .wx-pick button[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
+.skybar #arc[data-wx=cloudy] #sunDot,.skybar #arc[data-wx=fog] #sunDot,.skybar #arc[data-wx=winter] #sunDot{opacity:.7}
+.skybar #arc[data-wx=rain] #sunDot{opacity:.45}
+.skybar #arc[data-wx=cloudy] #sunGlow,.skybar #arc[data-wx=rain] #sunGlow,.skybar #arc[data-wx=fog] #sunGlow,.skybar #arc[data-wx=winter] #sunGlow{opacity:0}
+.skybar #arc[data-wx=sunny] #sunGlow{animation:wxPulse 3.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.skybar #arc[data-night="1"] .wx-rays{opacity:0}
+.skybar #arc .wx-stars{opacity:0;transition:opacity 1s}
+.skybar #arc[data-night="1"] .wx-stars{opacity:1}
+.skybar #arc .wx-spin{animation:wxSpin 26s linear infinite;transform-origin:0 0}
+.skybar #arc .wx-star{animation:wxTwinkle 3s ease-in-out infinite}
+.skybar #arc .wx-cloud{animation:wxDrift var(--d) linear var(--s) infinite}
+.skybar #arc .wx-drop{animation:wxFall var(--d) linear var(--s) infinite}
+.skybar #arc .wx-flake{animation:wxSnow var(--d) linear var(--s) infinite}
+.skybar #arc .wx-fog{animation:wxFog var(--d) ease-in-out var(--s) infinite alternate}
+@keyframes wxPulse{0%,100%{transform:scale(.92)}50%{transform:scale(1.3)}}
+@keyframes wxSpin{to{transform:rotate(360deg)}}
+@keyframes wxTwinkle{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes wxDrift{from{transform:translateX(-90px)}to{transform:translateX(340px)}}
+@keyframes wxFall{from{transform:translate(0,-12px)}to{transform:translate(-9px,112px)}}
+@keyframes wxSnow{from{transform:translate(0,-8px)}to{transform:translate(var(--sw),108px)}}
+@keyframes wxFog{from{transform:translateX(-45px)}to{transform:translateX(45px)}}
+@media(prefers-reduced-motion:reduce){.skybar #arc *{animation:none!important;transition:none!important}}
+
+/* Prayer times (prayer.js) */
+.skybar .pr-next{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--line);background:linear-gradient(135deg,var(--wash),transparent 70%)}
+.skybar .pr-next small{width:100%;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.skybar .pr-next b{font:500 30px/1.1 Editorial,Georgia,serif;color:var(--accent)}
+.skybar .pr-next b i,.skybar .pr-row span i{font:400 13px Interface,sans-serif;color:var(--muted);margin-left:6px}
+.skybar .pr-next span{color:var(--muted);font-size:14px}
+.skybar .pr-list{display:grid;gap:4px}
+.skybar .pr-row{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border:1px solid transparent;border-bottom-color:var(--line)}
+.skybar .pr-row.past{opacity:.5}
+.skybar .pr-row.info{font-size:.92em;color:var(--muted)}
+.skybar .pr-row.on{border-color:var(--accent);background:var(--wash);opacity:1}
+.skybar .pr-row b{font-variant-numeric:tabular-nums}
+.skybar .pr-note{margin:12px 0 0;font-size:13px;line-height:1.5;color:var(--muted)}
+.skybar .pr-note b{color:inherit}
+
+/* Prayer windows and azan */
+.skybar .pr-now{margin:0 0 12px;padding:10px 14px;border-left:3px solid var(--accent);background:var(--wash);font-size:14px}
+.skybar .pr-head{display:flex;justify-content:space-between;padding:0 12px 6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.skybar .pr-row span{display:block}
+.skybar .pr-row .pr-win{display:block;margin-top:2px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.skybar .pr-row em{font:600 10px/1 Interface,sans-serif;letter-spacing:.1em;text-transform:uppercase;margin-left:8px;padding:2px 6px;border:1px solid var(--accent);color:var(--accent);font-style:normal;vertical-align:middle}
+.skybar .pr-row.now{border-color:var(--accent);background:var(--wash);opacity:1}
+.skybar .pr-row.on{border-style:dashed}
+.skybar .pr-row b{font-size:17px}
+
+/* Qibla compass and Hijri calendar (qibla-calendar.js) */
+.skybar .qb-wrap{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.skybar .qb-dial{width:190px;max-width:100%;flex:none}
+.skybar .qb-text{flex:1;min-width:150px}
+.skybar .qb-text>b{display:block;font:500 34px/1.1 Editorial,Georgia,serif;color:var(--accent)}
+.skybar .qb-text>b i{font:400 15px Interface,sans-serif;color:var(--muted);margin-left:6px}
+.skybar .qb-text>span{display:block;color:var(--muted);font-size:13px;margin-bottom:12px}
+.skybar .qb-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.skybar .qb-row span{color:var(--muted)}
+.skybar .hc-nav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.skybar .hc-nav div{text-align:center}.skybar .hc-nav b{display:block;font-size:16px}.skybar .hc-nav small{color:var(--muted);font-size:12px}
+.skybar .hc-nav button,.skybar .hc-foot button{border:1px solid var(--line);background:transparent;color:inherit;cursor:pointer;font:inherit;padding:4px 12px}
+.skybar .hc-nav button{font-size:20px;line-height:1.1}
+.skybar .hc-nav button:hover,.skybar .hc-foot button:hover{border-color:var(--accent);color:var(--accent)}
+.skybar .hc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.skybar .hc-w{text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:4px 0}
+.skybar .hc-w.fri{color:var(--accent)}
+.skybar .hc-d{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:46px;border:1px solid var(--line);position:relative}
+.skybar .hc-d b{font-size:15px;font-weight:600}.skybar .hc-d small{font-size:10.5px;color:var(--muted)}
+.skybar .hc-d.fri{background:var(--wash)}
+.skybar .hc-d.ev:after{content:"";position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.skybar .hc-d.today{border-color:var(--accent);outline:1px solid var(--accent);background:var(--wash)}
+.skybar .hc-ev{list-style:none;margin:12px 0 0;padding:0;font-size:13.5px}
+.skybar .hc-ev li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.skybar .hc-ev small,.skybar .hc-foot span{color:var(--muted);font-size:12px}
+.skybar .hc-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
+@media(max-width:420px){.skybar .hc-d{min-height:40px}.skybar .hc-d small{display:none}}
+
+/* Phone compass */
+.skybar .qb-btn{margin-top:12px;border:1px solid var(--accent);background:transparent;color:var(--accent);padding:8px 14px;font:inherit;cursor:pointer}
+.skybar .qb-btn:hover{background:var(--wash)}
+.skybar .qb-stat{margin:10px 0 0;min-height:1.4em;font-size:14px;color:var(--muted)}
+.skybar .qb-stat.ok{color:var(--accent);font-weight:600}
+
+/* Moon calendar and day length (moon-day.js) */
+@media(min-width:1001px){.skybar .grp-wide{grid-column:span 2}}
+.skybar .hc-d.mc{min-height:62px;padding:3px 0}
+.skybar .hc-d.mc svg{display:block}
+.skybar .hc-d.mc.ev small{color:var(--accent);font-weight:600}
+.skybar .dl-chart{width:100%;height:auto;display:block;margin:4px 0 12px}
+.skybar .dl-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.skybar .dl-stats div{padding:10px 12px;border:1px solid var(--line);background:var(--wash)}
+.skybar .dl-stats small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.skybar .dl-stats b{font-size:16px;font-weight:600}
+.skybar .dl-stats b i{display:block;font:400 12px Interface,sans-serif;color:var(--muted)}
+@media(max-width:700px){.skybar .dl-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.skybar .hc-d.mc small{display:block;font-size:9.5px}}

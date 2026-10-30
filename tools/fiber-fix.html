@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fiber Fix | Sakib Saleh</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;color:var(--ink,#f0ece3)}
+main{max-width:620px;margin:0 auto;padding:26px 16px 60px}
+h1{margin:0 0 6px}.sub{color:var(--muted);margin:0 0 18px;max-width:52ch}
+.stats{display:flex;gap:22px;flex-wrap:wrap;margin:0 0 12px;font-size:.95rem}
+.stats b{font-size:1.25rem;color:var(--accent);font-weight:600}.stats span{color:var(--muted)}
+#c{display:block;width:100%;aspect-ratio:1;border:1px solid var(--line);border-radius:8px;background:var(--surface);cursor:pointer;touch-action:manipulation}
+#c:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+button{font:inherit;padding:9px 16px;border-radius:999px;border:1px solid var(--accent);background:none;color:var(--accent);cursor:pointer}
+button.fill{background:var(--accent);color:var(--accent-ink)}button:disabled{opacity:.35;cursor:default}
+#msg{min-height:1.6em;margin:14px 0 0;color:var(--muted)}#msg.win{color:var(--accent);font-weight:600}
+.key{display:flex;gap:18px;flex-wrap:wrap;margin-top:18px;font-size:.85rem;color:var(--muted)}
+.key i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+</style><link rel="stylesheet" href="tools.css">
+<script>(function(){try{var v=localStorage.getItem("sakib-theme");if(v==="graphite"||v==="neon"||v==="mono")document.documentElement.dataset.pf=v}catch(e){}})()</script>
+</head><body>
+<nav class="pf-bar" aria-label="Portfolio"><a class="pf-home" href="../index.html">&lt;/&gt; Sakib<span>.Saleh</span></a><div class="pf-links"><a href="../pages/tools.html">All tools</a><a href="mikrotik-setup-studio.html">Setup Studio</a><a href="mikrotik-config-generator.html">Config Generator</a><a href="mikrotik-troubleshooting-desk.html">Troubleshooting Desk</a><a href="subnet-calculator.html">Subnet Calculator</a><a href="slab-calculator.html">Slab Calculator</a><a href="fiber-fix.html" aria-current="page">Fiber Fix</a></div></nav>
+<main>
+<h1>Fiber Fix</h1>
+<p class="sub">A storm has cut the cables. Tap a tile to rotate it, and route light from the OLT to every customer home before you run out of patience.</p>
+<div class="stats"><div><b id="lv">1</b> <span>level</span></div><div><b id="mv">0</b> <span>turns</span></div><div><b id="on">0/0</b> <span>homes online</span></div><div><b id="bs">-</b> <span>best turns</span></div></div>
+<canvas id="c" tabindex="0" aria-label="Fiber puzzle board. Arrow keys move, space rotates."></canvas>
+<div class="bar"><button id="nx" class="fill" disabled>Next level</button><button id="rs">Reshuffle</button><button id="nw">New layout</button></div>
+<p id="msg" role="status" aria-live="polite"></p>
+<div class="key"><span><i style="background:var(--pf-ac)"></i>Live fiber</span><span><i style="background:var(--pf-mu)"></i>Dark fiber</span><span><i style="background:var(--pf-warm)"></i>Home offline</span><span><i style="background:var(--pf-ok)"></i>Home online</span></div>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),cv=$('c'),x=cv.getContext('2d');
+const DX=[0,1,0,-1],DY=[-1,0,1,0]; // N E S W bits 1,2,4,8
+let n,lvl=1,moves=0,g,sol,src,leaf,cur=0,won=false,start;
+const rot=m=>((m<<1)|(m>>3))&15;
+function gen(){
+  n=Math.min(3+lvl,9);g=[];sol=[];
+  const seen=Array(n*n).fill(0),m=Array(n*n).fill(0);
+  src=Math.floor(Math.random()*n*n);seen[src]=1;const fr=[src];
+  while(fr.length){
+    const k=Math.floor(Math.random()*fr.length),a=fr[k],ax=a%n,ay=(a/n)|0;
+    const nb=[0,1,2,3].filter(d=>{const bx=ax+DX[d],by=ay+DY[d];return bx>=0&&by>=0&&bx<n&&by<n&&!seen[by*n+bx]});
+    if(!nb.length){fr.splice(k,1);continue}
+    const d=nb[Math.floor(Math.random()*nb.length)],b=(ay+DY[d])*n+ax+DX[d];
+    m[a]|=1<<d;m[b]|=1<<((d+2)%4);seen[b]=1;fr.push(b);
+  }
+  sol=m.slice();
+  leaf=m.map((v,i)=>i!==src&&[1,2,4,8].includes(v));
+  g=m.map(v=>{let r=Math.floor(Math.random()*4);while(r--)v=rot(v);return v});
+  start=g.slice();moves=0;won=false;cur=src;ui();draw();
+}
+function lit(){
+  const p=Array(n*n).fill(0);p[src]=1;const q=[src];
+  while(q.length){const a=q.pop(),ax=a%n,ay=(a/n)|0;
+    for(let d=0;d<4;d++)if(g[a]&(1<<d)){const bx=ax+DX[d],by=ay+DY[d];
+      if(bx<0||by<0||bx>=n||by>=n)continue;const b=by*n+bx;
+      if(!p[b]&&(g[b]&(1<<((d+2)%4)))){p[b]=1;q.push(b)}}}
+  return p;
+}
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function draw(){
+  const s=cv.clientWidth,dpr=devicePixelRatio||1;cv.width=cv.height=s*dpr;x.setTransform(dpr,0,0,dpr,0,0);
+  const c=s/n,p=lit(),ac=css('--pf-ac'),dk=css('--pf-mu'),wm=css('--pf-warm'),ok=css('--pf-ok'),ln=css('--pf-line'),bg=css('--pf-bg');
+  x.clearRect(0,0,s,s);
+  for(let i=0;i<n*n;i++){
+    const cx=(i%n)*c,cy=((i/n)|0)*c,mx=cx+c/2,my=cy+c/2;
+    x.fillStyle=bg;x.globalAlpha=.55;x.fillRect(cx+2,cy+2,c-4,c-4);x.globalAlpha=1;
+    x.strokeStyle=ln;x.lineWidth=1;x.strokeRect(cx+2.5,cy+2.5,c-5,c-5);
+    x.lineCap='round';x.lineWidth=Math.max(4,c*.1);
+    x.strokeStyle=p[i]?ac:dk;x.globalAlpha=p[i]?1:.5;x.shadowColor=p[i]?ac:'transparent';x.shadowBlur=p[i]?c*.18:0;
+    x.beginPath();for(let d=0;d<4;d++)if(g[i]&(1<<d)){x.moveTo(mx,my);x.lineTo(mx+DX[d]*c/2,my+DY[d]*c/2)}x.stroke();
+    x.shadowBlur=0;x.globalAlpha=1;
+    if(i===src){x.fillStyle=ac;x.shadowColor=ac;x.shadowBlur=c*.2;x.fillRect(mx-c*.2,my-c*.2,c*.4,c*.4);x.shadowBlur=0;x.fillStyle=css('--pf-on');x.font='600 '+c*.15+'px Interface,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('OLT',mx,my)}
+    else if(leaf[i]){x.fillStyle=p[i]?ok:wm;x.shadowColor=x.fillStyle;x.shadowBlur=p[i]?c*.25:0;
+      x.beginPath();x.moveTo(mx-c*.2,my+c*.15);x.lineTo(mx-c*.2,my-c*.02);x.lineTo(mx,my-c*.2);x.lineTo(mx+c*.2,my-c*.02);x.lineTo(mx+c*.2,my+c*.15);x.closePath();x.fill();x.shadowBlur=0}
+    if(i===cur&&document.activeElement===cv){x.strokeStyle=ac;x.lineWidth=2;x.strokeRect(cx+4,cy+4,c-8,c-8)}
+  }
+}
+function ui(){
+  const p=lit(),L=leaf.reduce((a,v,i)=>a+(v?1:0),0),O=leaf.reduce((a,v,i)=>a+(v&&p[i]?1:0),0);
+  const all=p.every(v=>v);
+  $('lv').textContent=lvl;$('mv').textContent=moves;$('on').textContent=O+'/'+L;
+  let b=null;try{b=localStorage.getItem('fiberfix-best-'+lvl)}catch(e){}
+  $('bs').textContent=b||'-';
+  if(all&&!won&&moves>0){won=true;
+    try{if(!b||moves<+b){localStorage.setItem('fiberfix-best-'+lvl,moves);$('bs').textContent=moves}}catch(e){}
+    $('msg').textContent='Network restored in '+moves+' turns. Every customer is back online.';$('msg').className='win';}
+  else if(!won){$('msg').textContent='';$('msg').className=''}
+  $('nx').disabled=!won;
+}
+function turn(i){if(won)return;g[i]=rot(g[i]);moves++;ui();draw()}
+cv.addEventListener('click',e=>{const r=cv.getBoundingClientRect(),c=r.width/n;
+  const i=Math.floor((e.clientY-r.top)/c)*n+Math.floor((e.clientX-r.left)/c);cur=i;turn(i)});
+cv.addEventListener('keydown',e=>{
+  const k={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];
+  if(k){e.preventDefault();const nx=cur%n+k[0],ny=((cur/n)|0)+k[1];if(nx>=0&&ny>=0&&nx<n&&ny<n)cur=ny*n+nx;draw()}
+  else if(e.key===' '||e.key==='Enter'){e.preventDefault();turn(cur)}});
+cv.addEventListener('focus',draw);cv.addEventListener('blur',draw);
+$('nx').onclick=()=>{lvl++;gen()};$('nw').onclick=gen;
+$('rs').onclick=()=>{g=start.slice();moves=0;won=false;ui();draw()};
+addEventListener('resize',draw);
+gen();
+})();
+</script></body></html>

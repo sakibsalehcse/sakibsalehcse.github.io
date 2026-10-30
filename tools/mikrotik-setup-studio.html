@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MikroTik Setup Studio</title>
+<style>
+:root{--bg:#eef1f6;--sf:#fff;--ink:#101828;--mu:#566074;--ln:#d8deea;--ac:#2a4bff;--acx:#fff;--wan:#d9480f;--w2:#a16207;--l1:#0b8a78;--l2:#6d3df0;--er:#c0262d;--hl:#e6ebff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b101a;--sf:#131a28;--ink:#e8edf7;--mu:#97a3b8;--ln:#26304a;--ac:#7b93ff;--acx:#0b101a;--wan:#ff9a5c;--w2:#e6c25a;--l1:#3fd6bf;--l2:#b39bff;--er:#ff8a90;--hl:#1a2340;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b101a;--sf:#131a28;--ink:#e8edf7;--mu:#97a3b8;--ln:#26304a;--ac:#7b93ff;--acx:#0b101a;--wan:#ff9a5c;--w2:#e6c25a;--l1:#3fd6bf;--l2:#b39bff;--er:#ff8a90;--hl:#1a2340;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:900px;margin:0 auto;padding:22px 16px 60px}
+.mono,code,textarea{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+h1,h2{font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;margin:0}
+h1{font-size:1.9rem;letter-spacing:-.01em}h2{font-size:1.35rem;margin-bottom:6px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.sub{color:var(--mu);margin:4px 0 14px}
+.seg{display:inline-flex;border:1.5px solid var(--ln);border-radius:999px;background:var(--sf);overflow:hidden}
+.seg label{margin:0;cursor:pointer}.seg input{position:absolute;opacity:0}
+.seg span{display:block;padding:6px 16px;font-size:.9rem}
+.seg input:checked+span{background:var(--ac);color:var(--acx);font-weight:600}
+.seg input:focus-visible+span{outline:3px solid var(--ac);outline-offset:-3px}
+.panel{background:var(--sf);border:1px solid var(--ln);border-radius:16px;padding:14px 16px;margin:12px 0}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--mu);margin-top:4px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+#steps{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px}
+#steps button{flex:0 0 auto;border:1.5px solid var(--ln);background:var(--sf);color:var(--mu);border-radius:999px;padding:6px 14px;font:inherit;font-size:.88rem;cursor:pointer}
+#steps button.on{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weight:600}
+#steps button.done{color:var(--ink)}
+.pane{display:none}.pane.on{display:block}
+body:not(.adv) .ao{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.hide{display:none!important}
+label{display:block;font-size:.84rem;color:var(--mu);margin-bottom:3px}
+input[type=text],input[type=password],input[type=number],select,textarea{width:100%;font:inherit;padding:9px 11px;border:1.5px solid var(--ln);border-radius:10px;background:var(--bg);color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:3px solid color-mix(in srgb,var(--ac) 35%,transparent);border-color:var(--ac)}
+.chk{display:flex;gap:9px;align-items:center;margin:9px 0}.chk input{width:auto;accent-color:var(--ac)}.chk label{margin:0;color:var(--ink);font-size:.95rem}
+.ports{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.lan{border:1.5px solid var(--c);border-radius:14px;padding:12px}.lan h3{margin:0 0 8px;font-size:1rem;color:var(--c)}
+details{border:1px solid var(--ln);border-radius:12px;padding:8px 12px;margin:8px 0;background:var(--sf)}
+details summary{cursor:pointer;font-weight:600;font-size:.93rem}details p,details li{color:var(--mu);font-size:.92rem;margin:6px 0}
+details.tip{background:var(--hl);border-color:transparent}
+.nav{display:flex;justify-content:space-between;margin-top:16px;gap:10px}
+.btn{border:0;border-radius:12px;background:var(--ac);color:var(--acx);font:inherit;font-weight:600;padding:10px 24px;cursor:pointer}
+.btn.g{background:transparent;color:var(--ink);border:1.5px solid var(--ln)}.btn:disabled{opacity:.35;cursor:default}
+.btn:focus-visible{outline:3px solid var(--ac);outline-offset:3px}
+.errs{color:var(--er);font-weight:500;padding-left:18px;margin:8px 0}.errs:empty{display:none}
+.okb{color:var(--l1);font-weight:600}
+textarea.out{min-height:330px;font-size:.8rem;line-height:1.45;background:#0d1420;color:#cfe8ff;border-color:#26304a}
+ol.how li{margin:6px 0}
+</style><link rel="stylesheet" href="tools.css">
+<script>(function(){try{var v=localStorage.getItem("sakib-theme");if(v==="graphite"||v==="neon"||v==="mono")document.documentElement.dataset.pf=v}catch(e){}})()</script>
+</head>
+<body><nav class="pf-bar" aria-label="Portfolio"><a class="pf-home" href="../index.html">&lt;/&gt; Sakib<span>.Saleh</span></a><div class="pf-links"><a href="../pages/tools.html">All tools</a><a href="mikrotik-setup-studio.html" aria-current="page">Setup Studio</a><a href="mikrotik-config-generator.html">Config Generator</a><a href="mikrotik-troubleshooting-desk.html">Troubleshooting Desk</a><a href="subnet-calculator.html">Subnet Calculator</a><a href="slab-calculator.html">Slab Calculator</a><a href="fiber-fix.html">Fiber Fix</a></div></nav>
+<main>
+<div class="top"><div><h1>MikroTik Setup Studio</h1><p class="sub" style="margin:2px 0 0">Answer simple questions. Get a ready-to-paste router script.</p></div>
+<div class="seg" role="radiogroup" aria-label="Experience level"><label><input type="radio" name="lv" value="b" checked><span>Beginner</span></label><label><input type="radio" name="lv" value="a"><span>Advanced</span></label></div></div>
+
+<div class="panel"><div id="pv"></div>
+<div class="legend"><span><i style="background:var(--wan)"></i>ISP in</span><span class="ao"><i style="background:var(--w2)"></i>Backup ISP</span><span><i style="background:var(--l1)"></i>LAN 1</span><span><i style="background:var(--l2)"></i>LAN 2</span><span><i style="background:var(--mu);opacity:.4"></i>Unused</span></div></div>
+<div id="steps" role="tablist"></div>
+
+<section class="pane" id="p0"><h2>Start here</h2>
+<p class="sub">This tool writes the commands your MikroTik needs. You answer questions, it builds the script, then you paste it into the router. Nothing is sent anywhere.</p>
+<div class="grid"><div><label for="rn">Router name (optional)</label><input type="text" id="rn" placeholder="Office-Router"></div>
+<div><label for="np">How many ethernet ports does it have?</label><input type="number" id="np" min="2" max="24" value="5"></div></div>
+<details class="tip"><summary>Beginner or Advanced?</summary><p><b>Beginner</b> shows only what a normal home or shop needs: internet, ports, Wi-Fi and an admin login. <b>Advanced</b> adds backup ISP, port forwarding, speed limits and custom names. Switch any time at the top.</p></details>
+<details><summary>Before you start</summary><p>Have these ready: how your ISP connects you (PPPoE username and password, a fixed IP, or automatic), and which port goes to the ONU or modem. Beginners: leave everything else on its default.</p></details></section>
+
+<section class="pane" id="p1"><h2>Internet</h2><p class="sub">How does your ISP give you internet?</p>
+<div class="seg" style="margin-bottom:12px"><label><input type="radio" name="wm" value="pppoe" checked><span>PPPoE</span></label><label><input type="radio" name="wm" value="static"><span>Static IP</span></label><label><input type="radio" name="wm" value="dhcp"><span>Automatic (DHCP)</span></label></div>
+<div class="grid" id="wf-pppoe"><div><label for="pu">PPPoE username</label><input type="text" id="pu" value="user@isp" autocomplete="off"></div><div><label for="pp">PPPoE password</label><input type="password" id="pp" autocomplete="off"></div></div>
+<div class="grid hide" id="wf-static"><div><label for="si">Your IP / prefix</label><input type="text" id="si" class="mono" value="10.248.71.34/30"></div><div><label for="sg">Gateway</label><input type="text" id="sg" class="mono" value="10.248.71.33"></div><div><label for="sd">DNS servers</label><input type="text" id="sd" class="mono" value="8.8.8.8,1.1.1.1"></div></div>
+<p class="sub hide" id="wf-dhcp">Nothing to fill in. The router asks the ONU or ISP for its address.</p>
+<details class="tip"><summary>Which one do I have?</summary><p><b>PPPoE:</b> the ISP gave you a username and password. <b>Static IP:</b> the ISP gave you an IP, gateway and mask. <b>DHCP:</b> you just plug in and it works. The gateway must sit in the same network as your IP, and the tool checks that.</p></details>
+<div class="ao panel"><h2 style="font-size:1.1rem">Backup ISP (failover)</h2><p class="sub">In Ports, set one port to "Backup ISP". If the main internet link drops, the router switches to it.</p>
+<div class="grid"><div><label for="w2m">Backup mode</label><select id="w2m"><option value="dhcp">Automatic (DHCP)</option><option value="pppoe">PPPoE</option><option value="static">Static IP</option></select></div><div id="w2a-w"><label for="w2a" id="w2al"></label><input type="text" id="w2a" class="mono"></div><div id="w2b-w"><label for="w2b" id="w2bl"></label><input type="text" id="w2b" class="mono"></div></div></div></section>
+
+<section class="pane" id="p2"><h2>Ports and LANs</h2><p class="sub">Tell each port what it does. LAN ports are for your computers, switches and access points.</p>
+<div class="ports" id="pr"></div>
+<div class="grid" style="margin-top:14px">
+<div class="lan" style="--c:var(--l1)"><h3>LAN 1</h3><label for="li1">Router IP / prefix</label><input type="text" id="li1" class="mono" value="192.168.10.1/24"><div class="chk"><input type="checkbox" id="lh1" checked><label for="lh1">Give devices addresses automatically (DHCP)</label></div>
+<div class="ao"><label for="lb1">Bridge name</label><input type="text" id="lb1" class="mono" value="bridge-lan1"><div class="grid" style="grid-template-columns:1fr 1fr;margin-top:8px"><div><label for="ld1">Download limit Mbps</label><input type="number" id="ld1" min="0" value="0"></div><div><label for="lu1">Upload limit Mbps</label><input type="number" id="lu1" min="0" value="0"></div></div></div></div>
+<div class="lan" style="--c:var(--l2)"><h3>LAN 2</h3><label for="li2">Router IP / prefix</label><input type="text" id="li2" class="mono" value="192.168.20.1/24"><div class="chk"><input type="checkbox" id="lh2" checked><label for="lh2">Give devices addresses automatically (DHCP)</label></div>
+<div class="ao"><label for="lb2">Bridge name</label><input type="text" id="lb2" class="mono" value="bridge-lan2"><div class="grid" style="grid-template-columns:1fr 1fr;margin-top:8px"><div><label for="ld2">Download limit Mbps</label><input type="number" id="ld2" min="0" value="0"></div><div><label for="lu2">Upload limit Mbps</label><input type="number" id="lu2" min="0" value="0"></div></div></div></div></div>
+<div class="chk"><input type="checkbox" id="iso" checked><label for="iso">Keep LAN 1 and LAN 2 separate from each other</label></div>
+<details class="tip"><summary>What is a LAN and a bridge?</summary><p>A LAN is a private network. A bridge joins several ports into one LAN so they act like one switch. Each LAN has its own router IP, for example 192.168.10.1/24, and the router hands out addresses from that range. Pick different networks for each LAN.</p></details></section>
+
+<section class="pane" id="p3"><h2>Wi-Fi and access</h2>
+<div class="chk"><input type="checkbox" id="wfe"><label for="wfe">Set up Wi-Fi (only if your router has it)</label></div>
+<div class="grid" id="wfg"><div><label for="wfs">Wi-Fi name</label><input type="text" id="wfs" value="MikroTik-WiFi"></div><div><label for="wfp">Wi-Fi password (8+ characters)</label><input type="password" id="wfp" autocomplete="new-password"></div>
+<div><label for="wfv">Router software</label><select id="wfv"><option value="v6">RouterOS 6 (wlan1)</option><option value="v7">RouterOS 7 (wifi1)</option></select></div><div><label for="wfi">Wi-Fi interfaces</label><input type="text" id="wfi" class="mono" value="wlan1"></div>
+<div><label for="wfl">Put Wi-Fi in</label><select id="wfl"><option value="1">LAN 1</option><option value="2">LAN 2</option></select></div></div>
+<h2 style="font-size:1.1rem;margin-top:16px">Router login</h2><p class="sub">Create your own admin so you never keep the default one.</p>
+<div class="grid"><div><label for="un">Username</label><input type="text" id="un" class="mono" value="netadmin"></div><div><label for="upw">Password (8+ characters)</label><input type="password" id="upw" autocomplete="new-password"></div><div><label for="ug">Access</label><select id="ug"><option value="full">Full control</option><option value="read">Read-only</option></select></div></div>
+<div class="chk"><input type="checkbox" id="sp"><label for="sp">Show passwords</label></div>
+<div class="chk"><input type="checkbox" id="fw" checked><label for="fw">Protect the router from the internet side (recommended)</label></div>
+<div class="chk"><input type="checkbox" id="hd" checked><label for="hd">Turn off unused services like telnet and ftp (recommended)</label></div>
+<div class="chk ao"><input type="checkbox" id="da"><label for="da">Disable the default "admin" user (only after you can log in with yours)</label></div>
+<details class="tip"><summary>Why change the admin?</summary><p>Every MikroTik ships with the same "admin" user. Attackers try it first. Your own name plus a strong password is much safer.</p></details></section>
+
+<section class="pane" id="p4"><h2>Port forwarding</h2><p class="sub">Let people on the internet reach a device inside your LAN, such as a camera or web server. One rule per line: <code>protocol,external port,internal IP,internal port,name</code></p>
+<textarea id="pf" class="mono" style="min-height:120px" placeholder="tcp,8080,192.168.10.50,80,web-server"></textarea>
+<details class="tip"><summary>It does not work from outside?</summary><p>Some ISPs share one public IP between many customers (CGNAT). Then port forwarding cannot work. Ask the ISP for a public IP.</p></details></section>
+
+<section class="pane" id="p5"><h2>Your script</h2><p class="sub">Check the list below, copy the script, then follow the steps.</p>
+<ul class="errs" id="er"></ul><div id="okm" class="okb"></div>
+<div class="nav" style="justify-content:flex-start;margin:10px 0"><button class="btn" id="cp">Copy script</button><span id="cm" class="okb" style="align-self:center"></span></div>
+<textarea id="out" class="out mono" readonly spellcheck="false" aria-label="Generated RouterOS script"></textarea>
+<h2 style="font-size:1.15rem;margin-top:18px">How to apply it</h2>
+<ol class="how"><li><b>Back up.</b> In WinBox open Files, then Backup. Or run <code>/system backup save</code>.</li><li><b>Reset to empty.</b> Run <code>/system reset-configuration no-defaults=yes skip-backup=yes</code>. The router restarts.</li><li><b>Connect a LAN port.</b> Plug your computer into a port you set as LAN, not the ISP port. Open WinBox, choose the Neighbors tab, connect by MAC address.</li><li><b>Paste.</b> Open New Terminal, paste the script, press Enter.</li><li><b>Plug in the ISP cable</b> to the ISP port and run the checks below.</li></ol>
+<details><summary>Check that it works</summary><ul><li>IP, then Addresses: your LAN IPs are listed.</li><li>PPPoE mode: Interfaces shows <code>pppoe-out1</code> with an R (running).</li><li>Run <code>/ping 8.8.8.8 count=3</code> and then <code>/ping google.com count=3</code>. If only the second fails, it is a DNS problem.</li><li>IP, then DHCP Server, then Leases: your devices appear.</li></ul></details>
+<details><summary>Troubleshooting</summary><ul><li><b>No internet with PPPoE:</b> check username and password, and that the ISP port is the one going to the ONU.</li><li><b>Locked out:</b> hold the reset button, or use Netinstall. Always back up first.</li><li><b>Wi-Fi not showing:</b> check the interface name under Interfaces. RouterOS 7 often uses wifi1.</li><li><b>Script error in the middle:</b> reset to empty and paste again. The script expects a clean router.</li></ul></details>
+<details><summary>Glossary</summary><ul><li><b>WAN:</b> the side facing the internet.</li><li><b>LAN:</b> your private network inside.</li><li><b>Gateway:</b> the address your traffic leaves through.</li><li><b>Prefix (/24):</b> the size of a network. /24 holds 254 devices.</li><li><b>NAT:</b> lets many devices share one public IP.</li><li><b>DHCP:</b> hands out addresses automatically.</li></ul></details></section>
+
+<div class="nav"><button class="btn g" id="bk">Back</button><button class="btn" id="nx">Next</button></div>
+</main>
+<script>
+const $=id=>document.getElementById(id),A=()=>document.body.classList.contains('adv');
+const toInt=p=>((p[0]<<24)|(p[1]<<16)|(p[2]<<8)|p[3])>>>0,toIp=n=>[n>>>24,(n>>>16)&255,(n>>>8)&255,n&255].join('.');
+function ip4(s){const m=String(s).trim().split('.');if(m.length!==4)return null;const p=m.map(x=>/^\d{1,3}$/.test(x)?+x:NaN);return p.some(x=>isNaN(x)||x>255)?null:p}
+function cidr(s){const [a,b]=String(s).trim().split('/'),p=ip4(a||'');if(!p||!/^\d{1,2}$/.test(b||'')||+b>30||+b<8)return null;const pre=+b,m=(0xFFFFFFFF<<(32-pre))>>>0,ip=toInt(p),net=(ip&m)>>>0,bc=(net|(~m>>>0))>>>0;return{ip,pre,net,bc,txt:toIp(ip)+'/'+pre,nt:toIp(net)+'/'+pre}}
+const qq=s=>'"'+String(s).replace(/["\\$]/g,m=>'\\'+m)+'"';
+const ROLES=['WAN','WAN2','LAN1','LAN2','Off'],LB={WAN:'ISP',WAN2:'ISP 2',LAN1:'LAN 1',LAN2:'LAN 2',Off:'off'},COL={WAN:'var(--wan)',WAN2:'var(--w2)',LAN1:'var(--l1)',LAN2:'var(--l2)',Off:'var(--mu)'};
+const roles={},np=()=>Math.max(2,Math.min(24,+$('np').value||5));
+function panel(){const n=np(),W=n*56+20;let s=`<svg viewBox="0 0 ${W} 108" style="width:100%;max-height:150px" role="img" aria-label="Router port map"><rect x="2" y="8" width="${W-4}" height="66" rx="12" fill="none" stroke="var(--ln)" stroke-width="2"/>`;
+for(let i=1;i<=n;i++){const r=roles[i],x=12+(i-1)*56;s+=`<rect x="${x}" y="20" width="44" height="34" rx="7" fill="${COL[r]}" opacity="${r==='Off'?.3:1}"/><text x="${x+22}" y="43" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">${i}</text><text x="${x+22}" y="94" text-anchor="middle" font-size="11" fill="var(--mu)">${LB[r]}</text>`}
+$('pv').innerHTML=s+'</svg>'}
+function ports(){const n=np(),b=$('pr');b.innerHTML='';for(let i=1;i<=n;i++){if(!(i in roles))roles[i]=i===1?'WAN':i<=3?'LAN1':i<=5?'LAN2':'Off';
+const d=document.createElement('div');d.innerHTML=`<label for="r${i}">Port ${i} (ether${i})</label><select id="r${i}">${ROLES.map(r=>`<option value="${r}"${r===roles[i]?' selected':''}${r==='WAN2'?' class="ao"':''}>${{WAN:'ISP in',WAN2:'Backup ISP',LAN1:'LAN 1',LAN2:'LAN 2',Off:'Unused'}[r]}</option>`).join('')}</select>`;
+d.querySelector('select').onchange=e=>{roles[i]=e.target.value;panel();gen()};b.appendChild(d)}panel()}
+function portFwd(E){const ls=$('pf').value.split('\n').map(s=>s.trim()).filter(Boolean),o=[];if(!ls.length)return o;o.push('','# Port forwarding','/ip firewall nat');
+const ok=s=>/^\d{1,5}(-\d{1,5})?$/.test(s)&&s.split('-').every(v=>+v>=1&&+v<=65535);
+ls.forEach((l,i)=>{const f=l.split(',').map(s=>s.trim()),e=m=>E.push('Port forwarding line '+(i+1)+': '+m),p=(f[0]||'').toLowerCase();
+if(p!=='tcp'&&p!=='udp')return e('protocol must be tcp or udp.');if(!ok(f[1]||''))return e('external port must be 1 to 65535.');if(!ip4(f[2]||''))return e('internal IP is not valid.');if(f[3]&&!ok(f[3]))return e('internal port is not valid.');
+o.push('add chain=dstnat in-interface-list=WAN protocol='+p+' dst-port='+f[1]+' action=dst-nat to-addresses='+f[2]+(f[3]?' to-ports='+f[3]:'')+(f[4]?' comment='+qq(f[4]):''))});return o}
+function gen(){const E=[],L=[],ad=A(),wm=document.querySelector('input[name=wm]:checked').value,n=np(),pl={WAN:[],WAN2:[],LAN1:[],LAN2:[]};
+for(let i=1;i<=n;i++){const r=roles[i];if(r==='WAN2'&&!ad)continue;if(pl[r])pl[r].push('ether'+i)}
+if(pl.WAN.length!==1)E.push('Choose exactly one ISP port: the port that goes to your ONU or modem.');
+if(pl.WAN2.length>1)E.push('Choose only one Backup ISP port.');
+const wan=pl.WAN[0]||'ether1',act=[];
+[1,2].forEach(x=>{const p=pl['LAN'+x];if(!p.length)return;const c=cidr($('li'+x).value);if(!c)return E.push('LAN '+x+': enter a router IP like 192.168.'+x+'0.1/24.');
+const br=ad?($('lb'+x).value.trim()||'bridge-lan'+x):'bridge-lan'+x;if(!/^[A-Za-z0-9._-]+$/.test(br))E.push('LAN '+x+': bridge name can use letters, numbers and . _ - only.');act.push({x,c,p,br})});
+if(!act.length&&!E.length)E.push('Give at least one port to LAN 1 or LAN 2.');
+if(act.length===2){if(act[0].c.net<=act[1].c.bc&&act[1].c.net<=act[0].c.bc)E.push('LAN 1 and LAN 2 overlap. Use different networks, like 192.168.10.1/24 and 192.168.20.1/24.');if(act[0].br===act[1].br)E.push('Both LANs have the same bridge name.')}
+let wi=wan;const si=cidr($('si').value),sg=$('sg').value.trim(),sd=$('sd').value.replace(/\s+/g,'');
+if(wm==='pppoe'){wi='pppoe-out1';if(!$('pu').value)E.push('Enter the PPPoE username.');if(!$('pp').value)E.push('Enter the PPPoE password.')}
+if(wm==='static'){if(!si)E.push('Internet: enter your IP like 10.0.0.2/30.');if(!ip4(sg))E.push('Internet: enter a valid gateway.');else if(si&&(toInt(ip4(sg))<si.net||toInt(ip4(sg))>si.bc))E.push('Internet: the gateway is not in the same network as your IP.');if(sd&&sd.split(',').some(v=>!ip4(v)))E.push('Internet: DNS servers must be IPs separated by commas.')}
+L.push('# MikroTik Setup Studio - internet: '+wm.toUpperCase()+' on '+wan);const rn=$('rn').value.trim();if(rn)L.push('/system identity set name='+qq(rn));
+L.push('','# Interface lists','/interface list','add name=WAN','add name=LAN','/interface list member','add list=WAN interface='+wi);act.forEach(a=>L.push('add list=LAN interface='+a.br));
+const w2=ad&&pl.WAN2.length?pl.WAN2[0]:null;
+L.push('','# Internet ('+wm.toUpperCase()+')');
+if(wm==='pppoe')L.push('/interface pppoe-client','add name=pppoe-out1 interface='+wan+' user='+qq($('pu').value)+' password='+qq($('pp').value)+' default-route-distance=1 add-default-route=yes use-peer-dns=yes disabled=no');
+else if(wm==='static')L.push('/ip address','add address='+(si?si.txt:'x.x.x.x/xx')+' interface='+wan,'/ip route','add dst-address=0.0.0.0/0 gateway='+sg+' distance=1'+(w2?' check-gateway=ping':''),'/ip dns','set servers='+(sd||'8.8.8.8,1.1.1.1'));
+else L.push('/ip dhcp-client','add interface='+wan+' default-route-distance=1 add-default-route=yes use-peer-dns=yes disabled=no');
+if(w2){const m=$('w2m').value,a=$('w2a').value.trim(),b=$('w2b').value;let i2=w2;L.push('','# Backup ISP ('+m.toUpperCase()+' on '+w2+')');
+if(m==='pppoe'){if(!a)E.push('Backup ISP: enter the PPPoE username.');i2='pppoe-out2';L.push('/interface pppoe-client','add name=pppoe-out2 interface='+w2+' user='+qq(a)+' password='+qq(b)+' default-route-distance=2 add-default-route=yes use-peer-dns=no disabled=no')}
+else if(m==='static'){const c=cidr(a);if(!c)E.push('Backup ISP: enter an IP like 10.1.1.2/30.');if(!ip4(b))E.push('Backup ISP: enter a valid gateway.');else if(c&&(toInt(ip4(b))<c.net||toInt(ip4(b))>c.bc))E.push('Backup ISP: the gateway is not in the same network.');L.push('/ip address','add address='+(c?c.txt:'x.x.x.x/xx')+' interface='+w2,'/ip route','add dst-address=0.0.0.0/0 gateway='+b+' distance=2 check-gateway=ping')}
+else L.push('/ip dhcp-client','add interface='+w2+' default-route-distance=2 add-default-route=yes use-peer-dns=no disabled=no');
+L.push('/interface list member','add list=WAN interface='+i2)}
+L.push('/ip dns set allow-remote-requests=yes');
+const dns=ip=>toIp(ip);
+act.forEach(({x,c,p,br})=>{L.push('','# LAN '+x+' ('+p.join(', ')+') '+c.nt,'/interface bridge','add name='+br,'/interface bridge port');p.forEach(i=>L.push('add bridge='+br+' interface='+i));L.push('/ip address','add address='+c.txt+' interface='+br);
+if($('lh'+x).checked){const st=(c.bc-c.net>=31?c.net+10:c.net+2);L.push('/ip pool','add name=pool-lan'+x+' ranges='+toIp(st)+'-'+toIp(c.bc-1),'/ip dhcp-server','add name=dhcp-lan'+x+' interface='+br+' address-pool=pool-lan'+x+' lease-time=1d disabled=no','/ip dhcp-server network','add address='+c.nt+' gateway='+dns(c.ip)+' dns-server='+dns(c.ip))}
+const d=ad?+$('ld'+x).value||0:0,u=ad?+$('lu'+x).value||0:0;if(d>0||u>0)L.push('/queue simple','add name=limit-lan'+x+' target='+c.nt+' max-limit='+(u?u+'M':'0')+'/'+(d?d+'M':'0'))});
+if($('wfe').checked){const ss=$('wfs').value.trim(),pw=$('wfp').value,fi=$('wfi').value.replace(/\s+/g,'').split(',').filter(Boolean),lx=+$('wfl').value,a=act.find(o=>o.x===lx);
+if(!ss)E.push('Wi-Fi: enter a name.');if(pw.length<8)E.push('Wi-Fi: the password needs 8 or more characters.');if(!fi.length)E.push('Wi-Fi: enter the interface name, like wlan1.');if(!a)E.push('Wi-Fi: LAN '+lx+' has no ports. Pick another LAN.');
+else{L.push('','# Wi-Fi: '+ss);if($('wfv').value==='v6'){L.push('/interface wireless security-profiles','add name=wifi-sec mode=dynamic-keys authentication-types=wpa2-psk wpa2-pre-shared-key='+qq(pw),'/interface wireless');fi.forEach(i=>L.push('set '+i+' mode=ap-bridge ssid='+qq(ss)+' security-profile=wifi-sec country=bangladesh disabled=no'))}
+else{L.push('/interface wifi security','add name=wifi-sec authentication-types=wpa2-psk,wpa3-psk passphrase='+qq(pw),'/interface wifi configuration','add name=wifi-cfg ssid='+qq(ss)+' country=Bangladesh security=wifi-sec','/interface wifi');fi.forEach(i=>L.push('set '+i+' configuration=wifi-cfg disabled=no'))}
+L.push('/interface bridge port');fi.forEach(i=>L.push('add bridge='+a.br+' interface='+i))}}
+L.push('','# Internet sharing (NAT)','/ip firewall nat','add chain=srcnat out-interface-list=WAN action=masquerade comment="LAN to internet"');
+if(ad)L.push(...portFwd(E));
+L.push('','# Firewall','/ip firewall filter');
+if($('fw').checked)L.push('add chain=input action=accept connection-state=established,related','add chain=input action=drop connection-state=invalid','add chain=input action=accept protocol=icmp','add chain=input action=accept in-interface-list=LAN','add chain=input action=drop in-interface-list=WAN comment="Drop input from internet"');
+if($('iso').checked&&act.length===2)act.forEach(a=>act.forEach(b=>{if(a!==b)L.push('add chain=forward action=drop src-address='+a.c.nt+' dst-address='+b.c.nt+' comment="Keep LAN'+a.x+' away from LAN'+b.x+'"')}));
+if($('hd').checked)L.push('','# Hardening','/ip service','set telnet disabled=yes','set ftp disabled=yes','set www disabled=yes','set api disabled=yes','set api-ssl disabled=yes','/tool mac-server set allowed-interface-list=LAN','/tool mac-server mac-winbox set allowed-interface-list=LAN','/ip neighbor discovery-settings set discover-interface-list=LAN');
+const un=$('un').value.trim(),upw=$('upw').value,ug=$('ug').value;
+if(!/^[A-Za-z0-9._-]+$/.test(un))E.push('Login: the username can use letters, numbers and . _ - only.');if(upw.length<8)E.push('Login: the password needs 8 or more characters.');
+if(ad&&$('da').checked&&ug==='read')E.push('Login: do not disable admin while your new user is read-only. You could not change settings.');
+L.push('','# Router login ('+(ug==='full'?'full control':'read-only')+')','/user','add name='+qq(un)+' password='+qq(upw)+' group='+ug);if(ad&&$('da').checked&&un!=='admin'&&ug==='full')L.push('disable admin');
+$('er').innerHTML='';E.forEach(e=>{const li=document.createElement('li');li.textContent=e;$('er').appendChild(li)});
+$('okm').textContent=E.length?'':'All checks passed. The script is ready.';$('out').value=L.join('\n')+'\n'}
+const ST=[['Start'],['Internet'],['Ports and LANs'],['Wi-Fi and access'],['Extras',1],['Finish']];let cur=0;
+const vis=()=>ST.map((s,i)=>i).filter(i=>!ST[i][1]||A());
+function show(i){cur=i;const v=vis();if(!v.includes(cur))cur=0;document.querySelectorAll('.pane').forEach((p,k)=>p.classList.toggle('on',k===cur));
+$('steps').innerHTML='';v.forEach(k=>{const b=document.createElement('button');b.textContent=(v.indexOf(k)+1)+'. '+ST[k][0];b.className=(k===cur?'on':k<cur?'done':'');b.onclick=()=>show(k);$('steps').appendChild(b)});
+$('bk').disabled=v.indexOf(cur)===0;$('nx').classList.toggle('hide',v.indexOf(cur)===v.length-1);if(cur===5)gen();window.scrollTo({top:0,behavior:'smooth'})}
+$('nx').onclick=()=>{const v=vis();show(v[v.indexOf(cur)+1])};$('bk').onclick=()=>{const v=vis();show(v[v.indexOf(cur)-1])};
+document.querySelectorAll('input[name=lv]').forEach(r=>r.onchange=()=>{document.body.classList.toggle('adv',r.value==='a'&&r.checked);show(cur);ports();gen()});
+document.querySelectorAll('input[name=wm]').forEach(r=>r.onchange=()=>{const m=document.querySelector('input[name=wm]:checked').value;['pppoe','static','dhcp'].forEach(k=>$('wf-'+k).classList.toggle('hide',m!==k))});
+function w2s(){const m=$('w2m').value;$('w2a-w').classList.toggle('hide',m==='dhcp');$('w2b-w').classList.toggle('hide',m==='dhcp');$('w2al').textContent=m==='pppoe'?'PPPoE username':'IP / prefix';$('w2bl').textContent=m==='pppoe'?'PPPoE password':'Gateway'}
+$('w2m').onchange=w2s;w2s();
+$('np').oninput=()=>{ports();gen()};
+$('sp').onchange=()=>['pp','upw','wfp'].forEach(i=>$(i).type=$('sp').checked?'text':'password');
+$('wfv').onchange=()=>{$('wfi').value=$('wfv').value==='v7'?'wifi1':'wlan1'};
+const wf=()=>['wfs','wfp','wfv','wfi','wfl'].forEach(i=>$(i).disabled=!$('wfe').checked);$('wfe').onchange=wf;wf();
+document.addEventListener('input',()=>{if(cur===5)gen()});document.addEventListener('change',()=>{if(cur===5)gen()});
+$('cp').onclick=()=>{const ok=()=>{$('cm').textContent='Copied';setTimeout(()=>$('cm').textContent='',1500)},fb=()=>{$('out').select();try{document.execCommand('copy');ok()}catch(_){}};try{navigator.clipboard.writeText($('out').value).then(ok,fb)}catch(_){fb()}};
+ports();show(0);gen();
+</script></body></html>

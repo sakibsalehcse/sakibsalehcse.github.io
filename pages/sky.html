@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sky — S. M. Sakib Saleh</title>
+<meta name="description" content="Live Sylhet clock with sun, moon, season, weather look and alarm.">
+<link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
+<script src="../assets/js/theme-init.js"></script>
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/sky.css">
+<style>
+#seasonFun{margin:0 0 14px;padding:16px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--c,var(--yr)) 14%,transparent),transparent 70%)}
+#seasonFun .ss-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+#seasonFun .ss-bn{display:block;font-size:2rem;line-height:1.1;color:var(--c,var(--yr))}
+#seasonFun .ss-en{font-weight:700;font-size:1.05rem}
+#seasonFun small{display:block;color:var(--muted);margin-top:2px}
+#seasonFun .ss-days{text-align:right;color:var(--muted);font-size:.9rem}
+#seasonFun .ss-days b{display:block;font-size:1.8rem;line-height:1;color:inherit}
+#seasonFun .ss-line{margin:12px 0;line-height:1.5}
+#seasonFun .ss-bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+#seasonFun .ss-bar i{display:block;height:100%;border-radius:99px;background:var(--c,var(--yr))}
+#seasonFun .ss-pct{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin:4px 0 12px}
+#seasonFun .ss-ribbon{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+#seasonFun .ss-ribbon span{padding:8px 4px;border:1px solid var(--line);border-radius:10px;text-align:center;font-size:.72rem;color:var(--muted);opacity:.7}
+#seasonFun .ss-ribbon span b{display:block;font-size:.95rem;font-weight:600}
+#seasonFun .ss-ribbon span.on{opacity:1;color:inherit;border-color:var(--c,var(--yr));background:color-mix(in srgb,var(--c,var(--yr)) 18%,transparent)}
+#seasonFun .ss-next{margin:12px 0 0;font-size:.85rem;color:var(--muted)}
+@media(max-width:560px){#seasonFun .ss-ribbon{grid-template-columns:repeat(3,1fr)}}
+#seasonFun .ss-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 14px}
+#seasonFun .ss-chips span{padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--c,var(--yr)) 12%,transparent);font-size:.85rem}
+#seasonFun .ss-chips small{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;margin:0 0 2px}
+@media(max-width:560px){#seasonFun .ss-chips{grid-template-columns:1fr}}
+</style>
+</head>
+<body data-sky-open>
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="circuits" aria-hidden="true"></canvas>
+<header class="header"><div class="shell nav"><a class="wordmark" href="../index.html"><span class="logo-mark" aria-hidden="true">&lt;/&gt;</span>Sakib<span>.Saleh</span></a><nav id="navigation" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../index.html#about">About</a><a href="../index.html#skills">Skills</a><a href="projects.html">Projects</a><a href="tools.html">Tools</a><a href="sky.html" class="active">Sky</a><a href="../index.html#journey">Experience</a><a href="../index.html#contact">Contact</a></nav><div class="nav-actions"><button id="theme" class="icon-btn" aria-label="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button><a class="resume-btn" href="../assets/resume.pdf" download aria-label="Download resume">Resume<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg></a><button id="menu" aria-expanded="false" aria-controls="navigation">Menu</button></div></div></header>
+<main id="main">
+<section class="skybar skybar-page page-top" id="skybar" aria-label="Live clock and sky">
+<div class="shell sb">
+<div class="sb-time"><span class="sb-dot" aria-hidden="true"></span><b id="clock"><span id="hm"></span></b><small id="ss"></small><small id="ap"></small><span class="sb-where" id="sbWhere">Sylhet · UTC+6</span></div>
+<div class="sb-date"><span id="dateEn"></span><i>/</i><span id="banga"></span><i>/</i><span id="hijri" title="Islamic (Hijri) date"></span></div>
+<div class="sb-chips" aria-live="off">
+<span class="sb-chip" style="--c:var(--sun)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg><span id="chipSunTxt"></span></span>
+<span class="sb-chip" style="--c:var(--moon)"><svg viewBox="-40 -40 80 80" aria-hidden="true"><g id="moonMini"></g></svg><span id="chipMoonTxt"></span></span>
+<span class="sb-chip" style="--c:var(--yr)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20C5 10 10 4 20 4c0 10-6 16-15 16z"/><path d="M5 20L15 10"/></svg><span id="chipYrTxt"></span></span>
+</div>
+<button class="sb-toggle" id="skyToggle" type="button" aria-expanded="false" aria-controls="skyPanel">Sky details · আকাশ<em>▼</em></button>
+</div>
+<div class="skypanel" id="skyPanel" inert><div class="sp-in"><div class="shell sp-pad">
+<div class="sp-top">
+<div class="sp-sky"><svg id="arc" viewBox="0 0 300 135" role="img" aria-label="Where the sun and moon are now"><rect id="skyBg" x="0" y="0" width="300" height="100" fill="#ffd27a" opacity=".14"/><rect x="0" y="100" width="300" height="35" fill="var(--line)" opacity=".4"/><path d="M20 100 Q150 -20 280 100" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 5"/><path d="M280 100 Q150 140 20 100" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 5"/><line x1="4" y1="100" x2="296" y2="100" stroke="var(--muted)" stroke-width="1.5"/><text x="20" y="92" text-anchor="middle">E</text><text x="280" y="92" text-anchor="middle">W</text><circle id="moonDot" cx="150" cy="40" r="6" fill="#f4f1de" stroke="var(--muted)" stroke-width="1" opacity="0"/><circle id="sunGlow" cx="20" cy="100" r="17" fill="var(--sun)" opacity=".25"/><circle id="sunDot" cx="20" cy="100" r="9" fill="var(--sun)"/><defs><clipPath id="wxClip"><rect x="0" y="0" width="300" height="100"/></clipPath><filter id="wxBlur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="4"/></filter></defs><g id="wxFx" clip-path="url(#wxClip)" pointer-events="none"></g></svg><p class="sp-wx" id="wxNow" aria-live="polite"></p><div class="wx-pick" id="wxPick" role="group" aria-label="Weather look"></div></div>
+<div><p class="sk-label">Sky today · আজকের আকাশ</p><p class="sp-en" id="nowEn"></p><p class="sp-bn" id="nowBn"></p><div class="daybar" id="daybar"><i id="nowMark"></i></div><div class="dl"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>12 AM</span></div></div>
+<div class="sp-ctl"><label class="sk-label" for="loc">Place · স্থান</label><select id="loc"></select><button class="btn ghost" id="alarmBtn" type="button" aria-expanded="false">Alarm · অ্যালার্ম</button></div>
+</div>
+<div class="alarm" id="alarmBox" hidden>
+<input id="adate" type="date" aria-label="Alarm date (leave empty for the next time this clock time comes)"><input id="atime" type="time" aria-label="Alarm time"><input id="albl" type="text" placeholder="Label (example: Meeting)" aria-label="Alarm label"><select id="arep" aria-label="Repeat"><option value="once">Once</option><option value="daily">Every day</option></select><button class="btn" id="aset" type="button">Set alarm</button>
+<p class="msg" id="amsg">Pick a time, or add a date. Bangladesh time. An alarm can only ring while this page is open.</p><div id="alist"></div></div>
+<div class="groups" id="facts">
+<section class="grp" style="--c:var(--sun)"><div class="gh"><div><span class="gk">01 — SUN</span><span class="gn">Sun<small>সূর্য</small></span></div><div class="gi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></div></div><div id="rSun"></div></section>
+<section class="grp" style="--c:var(--moon)"><div class="gh"><div><span class="gk">02 — MOON</span><span class="gn">Moon<small>চাঁদ</small></span></div><div class="gi"><svg viewBox="-40 -40 80 80" aria-hidden="true"><g id="moonBig"></g></svg></div></div><div id="rMoon"></div></section>
+<section class="grp" style="--c:var(--yr)"><div class="gh"><div><span class="gk">03 — SEASON &amp; YEAR</span><span class="gn">Season<small>ঋতু ও বছর</small></span></div><div class="gi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20C5 10 10 4 20 4c0 10-6 16-15 16z"/><path d="M5 20L15 10"/></svg></div></div><div id="rYear"></div></section>
+</div>
+<button class="more" id="more" type="button"></button>
+<p class="sk-note">Sun and moon positions are calculated on your device, so they work offline. The weather look uses live conditions from Open-Meteo, which receives only the coordinates of the place you pick. Times are Bangladesh time (UTC+6).</p>
+</div></div></div>
+</section>
+</main><footer class="shell footer"><span>S. M. Sakib Saleh</span><span>Programming · Systems · Robotics</span><a href="#main">Back to top ↑</a></footer><script src="../assets/js/main.js"></script>
+<script src="../assets/js/sky.js"></script>
+<script src="../assets/js/prayer.js"></script>
+<script src="../assets/js/qibla-calendar.js"></script>
+<script src="../assets/js/moon-day.js"></script>
+<script src="../assets/js/palette.js"></script>
+<script>
+(function(){
+  /* ---------- Hijri date with weekday, English month names ---------- */
+  var HM=["Muharram","Safar","Rabi al-Awwal","Rabi al-Thani","Jumada al-Ula","Jumada al-Thani","Rajab","Shaban","Ramadan","Shawwal","Dhu al-Qadah","Dhu al-Hijjah"];
+  function dhaka(){return new Date(Date.now()+6*3600*1000);}
+  function hijri(){
+    var d=dhaka(),y=d.getUTCFullYear(),m=d.getUTCMonth()+1,dd=d.getUTCDate();
+    var a=Math.floor((14-m)/12),yy=y+4800-a,mm=m+12*a-3;
+    var jd=dd+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045;
+    var l=jd-1948440+10632,n=Math.floor((l-1)/10631);
+    l=l-10631*n+354;
+    var j=Math.floor((10985-l)/5316)*Math.floor((50*l)/17719)+Math.floor(l/5670)*Math.floor((43*l)/15238);
+    l=l-Math.floor((30-j)/15)*Math.floor((17719*j)/50)-Math.floor(j/16)*Math.floor((15238*j)/43)+29;
+    var hm=Math.floor((24*l)/709),hd=l-Math.floor((709*hm)/24),hy=30*n+j-30;
+    var wd=["Al-Ahad","Al-Ithnayn","Ath-Thulatha","Al-Arba'a","Al-Khamis","Al-Jumu'ah","As-Sabt"][d.getUTCDay()];
+    return wd+", "+hd+" "+HM[hm-1]+" "+hy+" AH";
+  }
+
+  /* ---------- Bangladesh six seasons ---------- */
+  var S={
+    shit:{bn:"শীত",en:"Shit",tag:"Winter",months:"Poush–Magh",flower:"Marigold",food:"Pitha & date-palm juice",feel:"Foggy mornings",txt:"The coldest weeks: thick morning fog, warm shawls, date-palm juice and pitha on every table."},
+    basanta:{bn:"বসন্ত",en:"Basanta",tag:"Spring",months:"Falgun–Choitro",flower:"Palash",food:"Fresh mango blossoms",feel:"Warm breeze",txt:"Palash and krishnachura bloom, koel birds call, and the air turns warm again."},
+    grishma:{bn:"গ্রীষ্ম",en:"Grishma",tag:"Summer",months:"Boishakh–Joishtho",flower:"Krishnachura",food:"Mango & lychee",feel:"Hot, stormy evenings",txt:"Hot and humid, with sudden kalboishakhi storms in the evening. Mango and lychee season."},
+    barsha:{bn:"বর্ষা",en:"Barsha",tag:"Monsoon",months:"Asharh–Shrabon",flower:"Kadam",food:"Hilsa khichuri",feel:"Heavy rain",txt:"Heavy rain. Sylhet's hills turn deep green, waterfalls run full and the haors fill up."},
+    sharat:{bn:"শরৎ",en:"Sharat",tag:"Early autumn",months:"Bhadro–Ashwin",flower:"Kash & shiuli",food:"Coconut sweets",feel:"Clear blue skies",txt:"Washed blue skies, puffy white clouds and kash flowers swaying along the rivers."},
+    hemanta:{bn:"হেমন্ত",en:"Hemanta",tag:"Late autumn",months:"Kartik–Agrahayan",flower:"Shiuli",food:"New-rice dishes",feel:"Cool, light fog",txt:"Cool mornings, light fog and golden paddy fields. The new-rice harvest festival, Nabanna, belongs here."}
+  };
+  var ORDER=["shit","basanta","grishma","barsha","sharat","hemanta"];
+  var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function seasonInfo(){
+    var d=dhaka(),y=d.getUTCFullYear(),t=Date.UTC(y,d.getUTCMonth(),d.getUTCDate());
+    var st=[["shit",y-1,12,15],["basanta",y,2,14],["grishma",y,4,14],["barsha",y,6,15],["sharat",y,8,16],["hemanta",y,10,16],["shit",y,12,15]]
+      .map(function(r){return {k:r[0],t:Date.UTC(r[1],r[2]-1,r[3]),m:r[2],d:r[3]};});
+    for(var i=0;i<st.length-1;i++){
+      if(t>=st[i].t&&t<st[i+1].t){
+        var len=st[i+1].t-st[i].t;
+        return {k:st[i].k,pct:Math.round((t-st[i].t)/len*100),left:Math.round((st[i+1].t-t)/864e5),next:st[i+1]};
+      }
+    }
+    return null;
+  }
+  var lastKey="";
+  function seasonCard(){
+    var rY=document.getElementById("rYear"); if(!rY||!rY.parentNode) return;
+    var info=seasonInfo(); if(!info) return;
+    var box=document.getElementById("seasonFun");
+    if(!box){box=document.createElement("div");box.id="seasonFun";rY.parentNode.insertBefore(box,rY);lastKey="";}
+    var key=info.k+info.pct+info.left; if(key===lastKey) return; lastKey=key;
+    var c=S[info.k],n=S[info.next.k];
+    var rib=ORDER.map(function(k){return '<span class="'+(k===info.k?'on':'')+'"><b>'+S[k].bn+'</b>'+S[k].en+'</span>';}).join("");
+    box.innerHTML=
+      '<div class="ss-top"><div><span class="ss-bn">'+c.bn+'</span><span class="ss-en">'+c.en+' · '+c.tag+'</span><small>Bangla months: '+c.months+'</small></div>'+
+      '<div class="ss-days"><b>'+info.left+'</b>'+(info.left===1?'day':'days')+' left<br>in this season</div></div>'+
+      '<p class="ss-line">'+c.txt+'</p>'+
+      '<div class="ss-chips"><span><small>Flower</small>'+c.flower+'</span><span><small>Taste</small>'+c.food+'</span><span><small>Feel</small>'+c.feel+'</span></div>'+
+      '<div class="ss-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+info.pct+'" aria-label="Season progress"><i style="width:'+info.pct+'%"></i></div>'+
+      '<div class="ss-pct"><span>'+info.pct+'% through '+c.en+'</span><span>Bangladesh has 6 seasons</span></div>'+
+      '<div class="ss-ribbon">'+rib+'</div>'+
+      '<p class="ss-next">Next: '+n.bn+' ('+n.en+', '+n.tag.toLowerCase()+') starts '+info.next.d+' '+MON[info.next.m-1]+'.</p>';
+    box.style.setProperty("--c","var(--yr)");
+  }
+
+  /* ---------- keep everything alive even if sky.js redraws ---------- */
+  function tick(){
+    var en=document.getElementById("dateEn");
+    if(en){
+      var box=en.parentNode,el=document.getElementById("hijri");
+      if(!el){
+        var sep=document.createElement("i");sep.textContent="/";
+        el=document.createElement("span");el.id="hijri";el.title="Islamic (Hijri) date";
+        box.appendChild(sep);box.appendChild(el);
+      }
+      var t=hijri(); if(el.textContent!==t) el.textContent=t;
+    }
+    seasonCard();
+  }
+  tick(); setInterval(tick,1000);
+})();
+</script>
+</body></html>
